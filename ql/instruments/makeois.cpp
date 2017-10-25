@@ -96,7 +96,9 @@ namespace QuantLib {
                                       schedule,
                                       0.0, // fixed rate
                                       fixedDayCount_,
-                                      overnightIndex_, overnightSpread_);
+                                      overnightIndex_,
+				                      0, // paymentLag
+				                      overnightSpread_);
             if (engine_ == 0) {
                 Handle<YieldTermStructure> disc =
                                     overnightIndex_->forwardingTermStructure();
@@ -117,7 +119,7 @@ namespace QuantLib {
             OvernightIndexedSwap(type_, nominal_,
                                  schedule,
                                  usedFixedRate, fixedDayCount_,
-                                 overnightIndex_, overnightSpread_));
+                                 overnightIndex_, 0 /* paymentLag */, overnightSpread_));
 
         if (engine_ == 0) {
             Handle<YieldTermStructure> disc =
@@ -177,6 +179,13 @@ namespace QuantLib {
             paymentFrequency_ = Once;
         return *this;
     }
+
+	// +AFR //
+	MakeOIS& MakeOIS::withPaymentLag(int paymentLag) { 
+		paymentLag_ = paymentLag;
+		return *this;
+	}
+	// -AFR //
 
     MakeOIS& MakeOIS::withDiscountingTermStructure(
                                         const Handle<YieldTermStructure>& d) {

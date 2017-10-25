@@ -36,9 +36,10 @@ namespace QuantLib {
       nominals_(std::vector<Real>(1, nominal)),
       paymentFrequency_(schedule.tenor().frequency()),
       fixedRate_(fixedRate), fixedDC_(fixedDC),
-      overnightIndex_(overnightIndex), spread_(spread) {
+      overnightIndex_(overnightIndex), spread_(spread), 
+	   /*AFR*/ indexCurrency_(overnightIndex->currency()), swapPaymentLag_(0), hasCustomLag_(false) {
 
-          initialize(schedule);
+		  initialize(schedule);
 
     }
 
@@ -53,22 +54,94 @@ namespace QuantLib {
     : Swap(2), type_(type), nominals_(nominals),
       paymentFrequency_(schedule.tenor().frequency()),
       fixedRate_(fixedRate), fixedDC_(fixedDC),
-      overnightIndex_(overnightIndex), spread_(spread) {
+      overnightIndex_(overnightIndex), spread_(spread),
+	  /*AFR*/ indexCurrency_(overnightIndex->currency()), swapPaymentLag_(0), hasCustomLag_(false)  {
 
-          initialize(schedule);
+		  initialize(schedule);
 
     }
+
+	/* +AFR */
+	OvernightIndexedSwap::OvernightIndexedSwap(
+					Type type,
+					Real nominal,
+					const Schedule& schedule,
+					Rate fixedRate,
+					const DayCounter& fixedDC,
+					const boost::shared_ptr<OvernightIndex>& overnightIndex,
+					int swapPaymentLag,
+					Spread spread)
+		: Swap(2), type_(type),
+		nominals_(std::vector<Real>(1, nominal)),
+		paymentFrequency_(schedule.tenor().frequency()),
+		fixedRate_(fixedRate), fixedDC_(fixedDC),
+		overnightIndex_(overnightIndex), swapPaymentLag_(swapPaymentLag), /*AFR*/
+		spread_(spread), indexCurrency_(overnightIndex->currency()), hasCustomLag_(true) /*AFR*/ {
+
+		initialize(schedule);
+
+	}
+
+	OvernightIndexedSwap::OvernightIndexedSwap(
+					Type type,
+					std::vector<Real> nominals,
+					const Schedule& schedule,
+					Rate fixedRate,
+					const DayCounter& fixedDC,
+					const boost::shared_ptr<OvernightIndex>& overnightIndex,
+					int swapPaymentLag,
+					Spread spread)
+		: Swap(2), type_(type),
+		nominals_(nominals),
+		paymentFrequency_(schedule.tenor().frequency()),
+		fixedRate_(fixedRate), fixedDC_(fixedDC),
+		overnightIndex_(overnightIndex), swapPaymentLag_(swapPaymentLag), /*AFR*/
+		spread_(spread), indexCurrency_(overnightIndex->currency()), hasCustomLag_(true) /*AFR*/ {
+
+		initialize(schedule);
+
+	}
+	/* -AFR */
+
 
     void OvernightIndexedSwap::initialize(const Schedule& schedule) {
         if (fixedDC_==DayCounter())
             fixedDC_ = overnightIndex_->dayCounter();
+		
+		/*AFR*/
+		if (!hasCustomLag_) 
+			switch (indexCurrency_.numericCode())
+			{
+			case 978: /*EUR*/
+				swapPaymentLag_ = 1;
+				break;
+			case 756: /*CHF*/
+				swapPaymentLag_ = 1;
+				break;
+			case 826: /*GBP*/
+				swapPaymentLag_ = 0;
+				break;
+			case 840: /*USD*/
+				swapPaymentLag_ = 2;
+				break;
+			case 392: /*JPY*/
+				swapPaymentLag_ = 0;
+				break;
+			default: 
+				swapPaymentLag_ = 0;
+			}		
+		/*AFR*/
+		//swapPaymentLag_ = 4;
+
         legs_[0] = FixedRateLeg(schedule)
             .withNotionals(nominals_)
-            .withCouponRates(fixedRate_, fixedDC_);
+            .withCouponRates(fixedRate_, fixedDC_)
+			.withPaymentLag(swapPaymentLag_); /*AFR*/
 
         legs_[1] = OvernightLeg(schedule, overnightIndex_)
             .withNotionals(nominals_)
-            .withSpreads(spread_);
+            .withSpreads(spread_)
+			.withPaymentLag(swapPaymentLag_); /*AFR*/
 
         for (Size j=0; j<2; ++j) {
             for (Leg::iterator i = legs_[j].begin(); i!= legs_[j].end(); ++i)

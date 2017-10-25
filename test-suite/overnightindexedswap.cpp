@@ -184,7 +184,8 @@ namespace {
                 .withEffectiveDate(settlement)
                 .withOvernightLegSpread(spread)
                 .withNominal(nominal)
-                .withDiscountingTermStructure(eoniaTermStructure);
+                .withDiscountingTermStructure(eoniaTermStructure)
+				.withPaymentLag(0); // AFR //
         }
 
         CommonVars() {

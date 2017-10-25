@@ -54,3 +54,15 @@
 #include <ql/termstructures/all.hpp>
 #include <ql/time/all.hpp>
 #include <ql/utilities/all.hpp>
+
+#include <ql/ext/cashflows/all.hpp>
+//#include <ql/ext/currencies/all.hpp>
+#include <ql/ext/indexes/all.hpp>
+#include <ql/ext/instruments/all.hpp>
+//#include <ql/ext/math/all.hpp>
+//#include <ql/ext/methods/all.hpp>//
+//#include <ql/ext/models/all.hpp>
+#include <ql/ext/pricingengines/all.hpp>
+//#include <ql/ext/processes/all.hpp>
+//#include <ql/ext/quotes/all.hpp>
+//#include <ql/ext/termstructures/all.hpp>

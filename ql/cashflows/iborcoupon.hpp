@@ -54,6 +54,8 @@ namespace QuantLib {
             return iborIndex_;
         }
         //@}
+		Date fixingValueDate() const { return fixingValueDate_; }
+		Date fixingEndDate() const { return fixingEndDate_; }
         //! \name FloatingRateCoupon interface
         //@{
         //! Implemented in order to manage the case of par coupon

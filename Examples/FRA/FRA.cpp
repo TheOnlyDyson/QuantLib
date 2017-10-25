@@ -352,7 +352,7 @@ int main(int, char* []) {
             cout << minutes << " m ";
         cout << fixed << setprecision(0)
              << seconds << " s\n" << endl;
-
+		system("pause");
         return 0;
 
     } catch (exception& e) {

@@ -411,6 +411,71 @@ int main(int, char* []) {
             floatSchedule, euriborIndex, spread,
             floatingLegDayCounter);
 
+		///* AFR*/
+		boost::shared_ptr<IborIndex> euriborIndex_6M(
+			new Euribor6M(forecastingTermStructure));
+		boost::shared_ptr<IborIndex> euriborIndex_3M(
+			new Euribor3M(forecastingTermStructure));
+		Frequency floatingLegFrequency2 = Quarterly;
+		Schedule floatSchedule_3M(settlementDate, maturity,
+			Period(floatingLegFrequency2),
+			calendar, floatingLegConvention,
+			floatingLegConvention,
+			DateGeneration::Forward, false);
+		Schedule floatSchedule_6M = floatSchedule;
+		bool payLongIndex = false;
+		TenorBasisSwap tenorSwap1(nominal, payLongIndex, floatSchedule_6M, euriborIndex_6M, 0.0, floatSchedule_3M, euriborIndex_3M,false, SubPeriodsCoupon_ext::Compounding);
+		TenorBasisSwap tenorSwap2(settlementDate, nominal, Period(Annual),false, euriborIndex_6M, 0.0, euriborIndex_3M, 0.0, Period(Quarterly), DateGeneration::Backward,false,SubPeriodsCoupon_ext::Compounding);
+		///* AFR*/
+
+		bool payDom = true;
+		Currency ccyDom = USDCurrency();
+		Currency ccyFor = EURCurrency();
+		Real nominalDomInitial = 10700.;
+		std::vector<Real> nominalsFor(floatSchedule_3M.size()-1, 10000.) ;
+		boost::shared_ptr<IborIndex> liborIndex_3M(
+			new USDLibor(Period(Quarterly),forecastingTermStructure));
+		std::vector<Rate> spreads(1,0.0);
+
+		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.0)); 
+		RelinkableHandle<Quote> fxHandle(fxQuote); 
+		std::string name("ECB");
+
+		//FxIndex fxIndex(name, 2, EURCurrency(), USDCurrency(), TARGET(), fxHandle, forecastingTermStructure, forecastingTermStructure);
+		boost::shared_ptr<FxIndex> fxIndexPtr(new 
+			FxIndex(name, 2, ccyFor, ccyDom, TARGET(), fxHandle, 
+				forecastingTermStructure, forecastingTermStructure));
+
+		forecastingTermStructure.linkTo(depoSwapTermStructure);
+		discountingTermStructure.linkTo(depoSwapTermStructure);
+
+		ResetableCrossCurrencySwap xccy(payDom, ccyDom, nominalDomInitial, floatSchedule_3M,
+			liborIndex_3M, spreads, ccyFor, nominalsFor, floatSchedule_3M,
+			euriborIndex_3M, spreads, fxIndexPtr, Following);
+
+		boost::shared_ptr<PricingEngine> xcSwapEngine(
+			new DiscountingCurrencySwapEngine(discountingTermStructure, discountingTermStructure, 
+				Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))), fxHandle, ccyDom,ccyFor,ccyDom));
+
+		xccy.setPricingEngine(xcSwapEngine);
+
+		std::cout << "Resetable XCCY (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::endl;
+		//std::cout << "Resetable XCCY (end)" << std::endl;
+
+		fxQuote->setValue(1.1);
+
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY (end)" << std::endl;
+
+		///* AFR*/
+
         Date fwdStart = calendar.advance(settlementDate, 1, Years);
         Date fwdMaturity = fwdStart + lenghtInYears*Years;
         Schedule fwdFixedSchedule(fwdStart, fwdMaturity,
@@ -773,6 +838,8 @@ int main(int, char* []) {
             std::cout << minutes << " m ";
         std::cout << std::fixed << std::setprecision(0)
                   << seconds << " s\n" << std::endl;
+
+		system("pause");
 
         return 0;
 

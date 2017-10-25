@@ -38,6 +38,7 @@
     <ProjectName>QuantLib</ProjectName>
     <ProjectGuid>{AD0A27DA-91DA-46A2-ACBD-296C419ED3AA}</ProjectGuid>
     <RootNamespace>QuantLib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="QuantLib.props" />
@@ -135,6 +136,38 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">QuantLib-$(qlCompilerTag)-x64-mt-s</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">QuantLib-$(qlCompilerTag)-mt</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">QuantLib-$(qlCompilerTag)-x64-mt</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib32-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|Win32'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib32-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib32-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|Win32'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib32-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">
+    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -497,6 +530,32 @@
     <ClInclude Include="ql\experimental\models\all.hpp" />
     <ClInclude Include="ql\experimental\models\hestonslvfdmmodel.hpp" />
     <ClInclude Include="ql\experimental\models\hestonslvmcmodel.hpp" />
+    <ClInclude Include="ql\ext\cashflows\all.hpp" />
+    <ClInclude Include="ql\ext\cashflows\averageonindexedcoupon.hpp" />
+    <ClInclude Include="ql\ext\cashflows\averageonindexedcouponpricer.hpp" />
+    <ClInclude Include="ql\ext\cashflows\couponpricer_ext.hpp" />
+    <ClInclude Include="ql\ext\cashflows\floatingratefxlinkednotionalcoupon.hpp" />
+    <ClInclude Include="ql\ext\cashflows\fxlinkedcashflow.hpp" />
+    <ClInclude Include="ql\ext\cashflows\subperiodscoupon.hpp" />
+    <ClInclude Include="ql\ext\cashflows\subperiodscouponpricer.hpp" />
+    <ClInclude Include="ql\ext\indexes\all.hpp" />
+    <ClInclude Include="ql\ext\indexes\fxindex.hpp" />
+    <ClInclude Include="ql\ext\instruments\all.hpp" />
+    <ClInclude Include="ql\ext\instruments\averageois.hpp" />
+    <ClInclude Include="ql\ext\instruments\crossccybasisswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\crossccyswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\currencyswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\fxforward.hpp" />
+    <ClInclude Include="ql\ext\instruments\makeaverageois.hpp" />
+    <ClInclude Include="ql\ext\instruments\oibasisswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\oiccbasisswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\tenorbasisswap.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\all.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\crossccyswapengine.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\discountingcurrencyswapengine.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\discountingfxforwardengine.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\discountingswapenginemulticurve.hpp" />
+    <ClInclude Include="ql\ext\pricingengines\oiccbasisswapengine.hpp" />
     <ClInclude Include="ql\indexes\ibor\aonia.hpp" />
     <ClInclude Include="ql\indexes\ibor\bbsw.hpp" />
     <ClInclude Include="ql\indexes\ibor\bkbm.hpp" />
@@ -1784,6 +1843,27 @@
     <ClCompile Include="ql\experimental\finitedifferences\squarerootprocessrndcalculator.cpp" />
     <ClCompile Include="ql\experimental\models\hestonslvfdmmodel.cpp" />
     <ClCompile Include="ql\experimental\models\hestonslvmcmodel.cpp" />
+    <ClCompile Include="ql\ext\cashflows\averageonindexedcoupon.cpp" />
+    <ClCompile Include="ql\ext\cashflows\averageonindexedcouponpricer.cpp" />
+    <ClCompile Include="ql\ext\cashflows\couponpricer_ext.cpp" />
+    <ClCompile Include="ql\ext\cashflows\fxlinkedcashflow.cpp" />
+    <ClCompile Include="ql\ext\cashflows\subperiodscoupon.cpp" />
+    <ClCompile Include="ql\ext\cashflows\subperiodscouponpricer.cpp" />
+    <ClCompile Include="ql\ext\indexes\fxindex.cpp" />
+    <ClCompile Include="ql\ext\instruments\averageois.cpp" />
+    <ClCompile Include="ql\ext\instruments\crossccybasisswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\crossccyswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\currencyswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\fxforward.cpp" />
+    <ClCompile Include="ql\ext\instruments\makeaverageois.cpp" />
+    <ClCompile Include="ql\ext\instruments\oibasisswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\oiccbasisswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\tenorbasisswap.cpp" />
+    <ClCompile Include="ql\ext\pricingengines\crossccyswapengine.cpp" />
+    <ClCompile Include="ql\ext\pricingengines\discountingcurrencyswapengine.cpp" />
+    <ClCompile Include="ql\ext\pricingengines\discountingfxforwardengine.cpp" />
+    <ClCompile Include="ql\ext\pricingengines\discountingswapenginemulticurve.cpp" />
+    <ClCompile Include="ql\ext\pricingengines\oiccbasisswapengine.cpp" />
     <ClCompile Include="ql\math\polynomialmathfunction.cpp" />
     <ClCompile Include="ql\math\pascaltriangle.cpp" />
     <ClCompile Include="ql\patterns\observable.cpp" />

@@ -27,6 +27,7 @@
 
 #include <ql/instruments/swap.hpp>
 #include <ql/time/daycounter.hpp>
+#include <ql/currency.hpp>
 
 namespace QuantLib {
 
@@ -37,14 +38,15 @@ namespace QuantLib {
     class OvernightIndexedSwap : public Swap {
       public:
         enum Type { Receiver = -1, Payer = 1 };
-        OvernightIndexedSwap(
+        
+		OvernightIndexedSwap(
                     Type type,
                     Real nominal,
                     const Schedule& schedule,
                     Rate fixedRate,
                     const DayCounter& fixedDC,
                     const boost::shared_ptr<OvernightIndex>& overnightIndex,
-                    Spread spread = 0.0);
+                    Spread spread = 0.0);		
         OvernightIndexedSwap(
                     Type type,
                     std::vector<Real> nominals,
@@ -53,6 +55,26 @@ namespace QuantLib {
                     const DayCounter& fixedDC,
                     const boost::shared_ptr<OvernightIndex>& overnightIndex,
                     Spread spread = 0.0);
+		/* +AFR */
+        OvernightIndexedSwap(
+                    Type type,
+                    Real nominal,
+                    const Schedule& schedule,
+                    Rate fixedRate,
+                    const DayCounter& fixedDC,
+                    const boost::shared_ptr<OvernightIndex>& overnightIndex,
+                    int swapPaymentLag,
+					Spread spread = 0.0); 
+		OvernightIndexedSwap(
+					Type type,
+					std::vector<Real> nominals,
+					const Schedule& schedule,
+					Rate fixedRate,
+					const DayCounter& fixedDC,
+					const boost::shared_ptr<OvernightIndex>& overnightIndex,
+					int swapPaymentLag,
+					Spread spread = 0.0);
+		/* -AFR */
         //! \name Inspectors
         //@{
         Type type() const { return type_; }
@@ -92,6 +114,10 @@ namespace QuantLib {
 
         Rate fixedRate_;
         DayCounter fixedDC_;
+
+		Currency indexCurrency_; /*AFR*/
+		int swapPaymentLag_;	 /*AFR*/
+		bool hasCustomLag_;		 /*AFR*/
 
         boost::shared_ptr<OvernightIndex> overnightIndex_;
         Spread spread_;

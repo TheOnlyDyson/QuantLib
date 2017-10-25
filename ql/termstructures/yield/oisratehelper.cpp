@@ -21,12 +21,15 @@
 #include <ql/termstructures/yield/oisratehelper.hpp>
 #include <ql/instruments/makeois.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
-
-#include <ql/utilities/null_deleter.hpp>
+//#include <ql/cashflows/coupon.hpp> //*AFR: added but commented out.*//
 
 using boost::shared_ptr;
 
 namespace QuantLib {
+
+    namespace {
+        void no_deletion(YieldTermStructure*) {}
+    }
 
     OISRateHelper::OISRateHelper(
                     Natural settlementDays,
@@ -58,7 +61,14 @@ namespace QuantLib {
             .withSettlementDays(settlementDays_);
 
         earliestDate_ = swap_->startDate();
-        latestDate_ = swap_->maturityDate();
+        //latestDate_ = swap_->maturityDate();
+
+		/*AFR*/
+		//shared_ptr<Coupon> lastC =
+        //    boost::dynamic_pointer_cast<Coupon>(swap_->leg(0).back());
+		//latestDate_ = lastC->date();
+		latestDate_ = swap_->leg(0).back()->date();
+		/*AFR*/
     }
 
     void OISRateHelper::setTermStructure(YieldTermStructure* t) {
@@ -66,7 +76,7 @@ namespace QuantLib {
         // force recalculation when needed
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         if (discountHandle_.empty())
@@ -119,7 +129,13 @@ namespace QuantLib {
             .withTerminationDate(endDate);
 
         earliestDate_ = swap_->startDate();
-        latestDate_ = swap_->maturityDate();
+        //latestDate_ = swap_->maturityDate();
+
+		/*AFR*/
+		//shared_ptr<Coupon> lastC =
+        //    boost::dynamic_pointer_cast<Coupon>(swap_->leg(0).back());
+		latestDate_ = swap_->leg(0).back()->date();
+		/*AFR*/
     }
 
     void DatedOISRateHelper::setTermStructure(YieldTermStructure* t) {
@@ -127,7 +143,7 @@ namespace QuantLib {
         // force recalculation when needed
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         if (discountHandle_.empty())

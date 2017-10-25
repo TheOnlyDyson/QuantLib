@@ -179,7 +179,13 @@ namespace QuantLib {
 
     OvernightLeg::OvernightLeg(const Schedule& schedule,
                                const shared_ptr<OvernightIndex>& i)
-    : schedule_(schedule), overnightIndex_(i), paymentAdjustment_(Following) {}
+	: schedule_(schedule), overnightIndex_(i), paymentAdjustment_(Following), /*AFR*/ paymentLag_(0) {}
+
+	/*AFR*/
+    OvernightLeg::OvernightLeg(const Schedule& schedule,
+                               const shared_ptr<OvernightIndex>& i, int paymentLag)
+    : schedule_(schedule), overnightIndex_(i), paymentAdjustment_(Following), paymentLag_(paymentLag) {}
+	/*AFR*/
 
     OvernightLeg& OvernightLeg::withNotionals(Real notional) {
         notionals_ = vector<Real>(1, notional);
@@ -196,8 +202,7 @@ namespace QuantLib {
         return *this;
     }
 
-    OvernightLeg&
-    OvernightLeg::withPaymentAdjustment(BusinessDayConvention convention) {
+    OvernightLeg& OvernightLeg::withPaymentAdjustment(BusinessDayConvention convention) {
         paymentAdjustment_ = convention;
         return *this;
     }
@@ -222,6 +227,13 @@ namespace QuantLib {
         return *this;
     }
 
+	/*AFR*/
+	OvernightLeg& OvernightLeg::withPaymentLag(int days) {
+        paymentLag_ = days;
+        return *this;
+    }
+	/*AFR*/
+
     OvernightLeg::operator Leg() const {
 
         QL_REQUIRE(!notionals_.empty(), "no notional given");
@@ -238,7 +250,8 @@ namespace QuantLib {
         for (Size i=0; i<n; ++i) {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
-            paymentDate = calendar.adjust(end, paymentAdjustment_);
+            //paymentDate = calendar.adjust(end, paymentAdjustment_);
+			paymentDate = calendar.advance(end, paymentLag_, Days, paymentAdjustment_,false); /*AFR*/ 
             if (i == 0 && !schedule_.isRegular(i+1))
                 refStart = calendar.adjust(end - schedule_.tenor(),
                                            paymentAdjustment_);

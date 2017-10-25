@@ -407,6 +407,29 @@ namespace QuantLib {
         RelinkableHandle<YieldTermStructure> collRelinkableHandle_;
     };
 
+	//! Rate helper for bootstrapping over discount factors or zero bonds
+	class ZeroBondRateHelper : public RelativeDateRateHelper {
+	public:
+		ZeroBondRateHelper(const Handle<Quote>& zeroBond,
+			const Period& tenor);
+		ZeroBondRateHelper(const Handle<Quote>& zeroBond,
+			const boost::shared_ptr<IborIndex>& iborIndex);
+		//! \name RateHelper interface
+		//@{
+		Real impliedQuote() const;
+		void setTermStructure(YieldTermStructure*);
+		//@}
+		//! \name Visitability
+		//@{
+		void accept(AcyclicVisitor&);
+		//@}
+	private:
+		void initializeDates();
+		Date fixingDate_;
+		boost::shared_ptr<IborIndex> iborIndex_;
+		RelinkableHandle<YieldTermStructure> termStructureHandle_;
+	};
+
 
 
     // inline

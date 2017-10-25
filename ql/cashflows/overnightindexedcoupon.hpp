@@ -79,6 +79,8 @@ namespace QuantLib {
       public:
         OvernightLeg(const Schedule& schedule,
                      const boost::shared_ptr<OvernightIndex>& overnightIndex);
+		OvernightLeg(const Schedule& schedule,
+                     const boost::shared_ptr<OvernightIndex>& overnightIndex, int paymentLag_); /*AFR*/
         OvernightLeg& withNotionals(Real notional);
         OvernightLeg& withNotionals(const std::vector<Real>& notionals);
         OvernightLeg& withPaymentDayCounter(const DayCounter&);
@@ -87,6 +89,7 @@ namespace QuantLib {
         OvernightLeg& withGearings(const std::vector<Real>& gearings);
         OvernightLeg& withSpreads(Spread spread);
         OvernightLeg& withSpreads(const std::vector<Spread>& spreads);
+		OvernightLeg& withPaymentLag(int days); /*AFR*/
         operator Leg() const;
       private:
         Schedule schedule_;
@@ -96,6 +99,7 @@ namespace QuantLib {
         BusinessDayConvention paymentAdjustment_;
         std::vector<Real> gearings_;
         std::vector<Spread> spreads_;
+		int paymentLag_; /*AFR*/
     };
 
 }

@@ -35,11 +35,13 @@
     #include <ql/cashflows/floatingratecoupon.hpp>
 #endif
 
-#include <ql/utilities/null_deleter.hpp>
-
 using boost::shared_ptr;
 
 namespace QuantLib {
+
+    namespace {
+        void no_deletion(YieldTermStructure*) {}
+    }
 
     FuturesRateHelper::FuturesRateHelper(const Handle<Quote>& price,
                                          const Date& iborStartDate,
@@ -348,7 +350,7 @@ namespace QuantLib {
         // force recalculation when needed---the index is not lazy
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         RelativeDateRateHelper::setTermStructure(t);
@@ -555,7 +557,7 @@ namespace QuantLib {
         // force recalculation when needed---the index is not lazy
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         RelativeDateRateHelper::setTermStructure(t);
@@ -826,7 +828,7 @@ namespace QuantLib {
         // force recalculation when needed
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         if (discountHandle_.empty())
@@ -940,7 +942,7 @@ namespace QuantLib {
         // force recalculation when needed
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         RelativeDateRateHelper::setTermStructure(t);
@@ -1013,7 +1015,7 @@ namespace QuantLib {
         // force recalculation when needed
         bool observer = false;
 
-        shared_ptr<YieldTermStructure> temp(t, null_deleter());
+        shared_ptr<YieldTermStructure> temp(t, no_deletion);
         termStructureHandle_.linkTo(temp, observer);
 
         collRelinkableHandle_.linkTo(*collHandle_, observer);
@@ -1029,5 +1031,65 @@ namespace QuantLib {
         else
             RateHelper::accept(v);
     }
+
+	ZeroBondRateHelper::ZeroBondRateHelper(const Handle<Quote>& zeroBond, 
+		                                   const Period & tenor)
+		: RelativeDateRateHelper(zeroBond) {
+		iborIndex_ = shared_ptr<IborIndex>(new
+			IborIndex("no-fix", // never take fixing into account
+				tenor, 0,
+				Currency(), NullCalendar(), Unadjusted,
+				false, Actual365Fixed(), termStructureHandle_));
+		initializeDates();
+	}
+
+	ZeroBondRateHelper::ZeroBondRateHelper(const Handle<Quote>& zeroBond, 
+		                                   const boost::shared_ptr<IborIndex>& i)
+		: RelativeDateRateHelper(zeroBond) {
+		iborIndex_ = i->clone(termStructureHandle_);
+		initializeDates();
+	}
+
+	Real ZeroBondRateHelper::impliedQuote() const
+	{
+		QL_REQUIRE(termStructure_ != 0, "term structure not set");
+		// the forecast fixing flag is set to true because
+		// we do not want to take fixing into account
+		return iborIndex_->forwardingTermStructure()->discount(fixingDate_,true);
+	}
+
+	void ZeroBondRateHelper::setTermStructure(YieldTermStructure *t)
+	{
+		// do not set the relinkable handle as an observer -
+		// force recalculation when needed---the index is not lazy
+		bool observer = false;
+
+		shared_ptr<YieldTermStructure> temp(t, no_deletion);
+		termStructureHandle_.linkTo(temp, observer);
+
+		RelativeDateRateHelper::setTermStructure(t);
+	}
+
+	void ZeroBondRateHelper::accept(AcyclicVisitor &v)
+	{
+		Visitor<ZeroBondRateHelper>* v1 =
+			dynamic_cast<Visitor<ZeroBondRateHelper>*>(&v);
+		if (v1 != 0)
+			v1->visit(*this);
+		else
+			RateHelper::accept(v);
+	}
+
+	void ZeroBondRateHelper::initializeDates()
+	{
+		// if the evaluation date is not a business day
+		// then move to the next business day
+		Date referenceDate =
+			iborIndex_->fixingCalendar().adjust(evaluationDate_);
+		earliestDate_ = iborIndex_->valueDate(referenceDate);
+		fixingDate_ = iborIndex_->fixingDate(earliestDate_);
+		maturityDate_ = iborIndex_->maturityDate(earliestDate_);
+		pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
+	}
 
 }

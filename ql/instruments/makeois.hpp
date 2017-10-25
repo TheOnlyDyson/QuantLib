@@ -52,6 +52,7 @@ namespace QuantLib {
         MakeOIS& withEffectiveDate(const Date&);
         MakeOIS& withTerminationDate(const Date&);
         MakeOIS& withRule(DateGeneration::Rule r);
+		MakeOIS& withPaymentLag(int paymentLag); // AFR //
 
         MakeOIS& withPaymentFrequency(Frequency f);
         MakeOIS& withEndOfMonth(bool flag = true);
@@ -76,6 +77,7 @@ namespace QuantLib {
 
         Frequency paymentFrequency_;
         DateGeneration::Rule rule_;
+		int paymentLag_; // AFR //
         bool endOfMonth_, isDefaultEOM_;
 
         OvernightIndexedSwap::Type type_;
