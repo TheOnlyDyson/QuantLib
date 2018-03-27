@@ -33,7 +33,7 @@ namespace QuantLib {
                      const Period& forwardStart)
     : swapTenor_(swapTenor), overnightIndex_(overnightIndex),
       fixedRate_(fixedRate), forwardStart_(forwardStart),
-      settlementDays_(2),
+      settlementDays_(2), paymentLag_(0),
       calendar_(overnightIndex->fixingCalendar()),
       paymentFrequency_(Annual),
       rule_(DateGeneration::Backward),
@@ -97,7 +97,7 @@ namespace QuantLib {
                                       0.0, // fixed rate
                                       fixedDayCount_,
                                       overnightIndex_,
-				                      0, // paymentLag
+				                      paymentLag_, // paymentLag
 				                      overnightSpread_);
             if (engine_ == 0) {
                 Handle<YieldTermStructure> disc =
@@ -119,7 +119,8 @@ namespace QuantLib {
             OvernightIndexedSwap(type_, nominal_,
                                  schedule,
                                  usedFixedRate, fixedDayCount_,
-                                 overnightIndex_, 0 /* paymentLag */, overnightSpread_));
+                                 overnightIndex_, paymentLag_ /* paymentLag */, 
+			                     overnightSpread_));
 
         if (engine_ == 0) {
             Handle<YieldTermStructure> disc =

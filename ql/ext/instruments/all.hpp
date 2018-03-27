@@ -10,3 +10,4 @@
 #include <ql/ext/instruments/oibasisswap.hpp>
 #include <ql/ext/instruments/oiccbasisswap.hpp>
 #include <ql/ext/instruments/tenorbasisswap.hpp>
+#include <ql/ext/instruments/subperiodsswap.hpp>

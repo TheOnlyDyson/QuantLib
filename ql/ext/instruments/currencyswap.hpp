@@ -214,20 +214,32 @@ public:
 	void lowerflag() { outdated_ = false; }
 	bool getflag() { return outdated_; }
 
-	const Schedule getscheduleDom() { return scheduleDom_; }
-	const boost::shared_ptr<FxIndex>& getfxindex() { return fxIndex_; }
-	std::vector<Real> getnomDom() { return nominalsDom_; }
-	std::vector<Real> getnomFor() { return nominalsFor_; }
+	const Schedule& domesticSchedule() const { return scheduleDom_; }
+	const Schedule& foreignSchedule() const { return scheduleFor_; }
+	
+	const boost::shared_ptr<FxIndex>& fxIndex() { return fxIndex_; }
+	const boost::shared_ptr<IborIndex>& foreignIndex() const { return iborIndexFor_; }
+	const boost::shared_ptr<IborIndex>& domesticIndex() const { return iborIndexDom_; }
+	
+	std::vector<Real> domesticNominals() { return nominalsDom_; }
+	std::vector<Real> foreignNominals() { return nominalsFor_; }
 
 private:
 	bool outdated_;
 	void updateDomLegFlows();
 
-	const Schedule& scheduleFor_;
-	const Schedule& scheduleDom_;
+	const Schedule scheduleFor_;
+	const Schedule scheduleDom_;
+	
+	boost::shared_ptr<IborIndex> iborIndexFor_;
+	boost::shared_ptr<IborIndex> iborIndexDom_;
 	boost::shared_ptr<FxIndex> fxIndex_;
+	
 	std::vector<Real> nominalsFor_;
 	std::vector<Real> nominalsDom_;
+	
+	std::vector<Rate> spreadsFor_;
+	std::vector<Rate> spreadsDom_;
 
 	BusinessDayConvention convention_;
 

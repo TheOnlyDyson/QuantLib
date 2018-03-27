@@ -39,7 +39,9 @@ namespace QuantLib {
                       const boost::shared_ptr<OvernightIndex>& overnightIndex,
                       // exogenous discounting curve
                       const Handle<YieldTermStructure>& discountingCurve
-                                            = Handle<YieldTermStructure>());
+                                            = Handle<YieldTermStructure>(),
+			          const int paymentLag = 0 /* +AFR */ 
+			          );
         //! \name RateHelper interface
         //@{
         Real impliedQuote() const;
@@ -57,6 +59,7 @@ namespace QuantLib {
         void initializeDates();
 
         Natural settlementDays_;
+		int paymentLag_;
         Period tenor_;
         boost::shared_ptr<OvernightIndex> overnightIndex_;
 

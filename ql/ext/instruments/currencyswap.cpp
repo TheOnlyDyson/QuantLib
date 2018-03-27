@@ -429,7 +429,8 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	const boost::shared_ptr<IborIndex>& iborIndexFor, std::vector<Rate> spreadsFor,
 	const boost::shared_ptr<FxIndex>& fxIndex,
 	boost::optional<BusinessDayConvention> paymentConvention)
-	: CurrencySwap(4), scheduleFor_(scheduleFor), scheduleDom_(scheduleDom), fxIndex_(fxIndex),
+	: CurrencySwap(4), scheduleFor_(scheduleFor), scheduleDom_(scheduleDom), fxIndex_(fxIndex), iborIndexDom_(iborIndexDom), iborIndexFor_(iborIndexFor),
+	  spreadsFor_(spreadsFor), spreadsDom_(spreadsDom),
 	  nominalsFor_(nominalsFor), nominalsDom_(scheduleDom.size()-1, nominalDomInitial) {
 
 	outdated_ = false;
@@ -444,44 +445,31 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 		std::fill(nominalsFor_.begin(), nominalsFor_.end(), nominalsFor[0]);
 	}
 
-	registerWith(fxIndex_);
+	registerWith(fxIndex);
+	registerWith(iborIndexDom);
+    registerWith(iborIndexFor);
 
 	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
 
 	// floating leg 1
 	currency_[0] = ccyDom;
 	payer_[0] = (payDom ? -1 : +1);
-	legs_[0] = IborLeg(scheduleDom_, iborIndexDom)
+/* 	legs_[0] = IborLeg(scheduleDom_, iborIndexDom)
 		.withNotionals(nominalsDom_)
 		.withPaymentDayCounter(iborIndexDom->dayCounter())
 		.withPaymentAdjustment(convention_)
 		.withSpreads(spreadsDom);
 	for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
 		registerWith(*i);
-
+ */
 	// add initial, interim and final notional flows
 	currency_[1] = ccyDom;
 	payer_[1] = payer_[0];
 	QL_REQUIRE(nominalsDom_.size() < scheduleDom_.size(), "too many float nominals provided");
 
 	legs_[1] = Leg(nominalsDom_.size());
+	
 	updateDomLegFlows();
-
-	//for (Size i = 1; i < nominalsFor_.size(); ++i)
-	//	nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(scheduleFor_.calendar().advance(scheduleFor_[i], -1 * fxIndex_->fixingDays(), TimeUnit::Days, Preceding), true);
-
-	//legs_[1].push_back(boost::shared_ptr<CashFlow>(
-	//	new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_))));
-
-	//for (Size i = 1; i < nominalsDom_.size(); i++) {
-	//	Real flow = (nominalsDom_[i - 1] - nominalsDom_[i]);
-	//	legs_[1].push_back(boost::shared_ptr<CashFlow>(
-	//		new SimpleCashFlow(flow, scheduleDom_.calendar().adjust(scheduleDom_[i], convention_))));
-	//}
-
-	//if (nominalsDom_.back() > 0)
-	//	legs_[1].push_back(boost::shared_ptr<CashFlow>(
-	//		new SimpleCashFlow(nominalsDom_.back(), scheduleDom_.calendar().adjust(scheduleDom_.dates().back(), convention_))));
 
 	// floating leg 2
 	currency_[2] = ccyFor;
@@ -513,7 +501,8 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 void ResetableCrossCurrencySwap::updateDomLegFlows() {
 
 	for (Size i = 1; i < nominalsFor_.size(); ++i)
-		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(scheduleFor_.calendar().advance(scheduleFor_[i], -1 * fxIndex_->fixingDays(), TimeUnit::Days, Preceding), true);
+		// nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(scheduleFor_.calendar().advance(scheduleFor_[i], -1 * fxIndex_->fixingDays(), TimeUnit::Days, Preceding), true);
+		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[i]) );
 
 	legs_[1].front() = boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_))	);
@@ -527,6 +516,15 @@ void ResetableCrossCurrencySwap::updateDomLegFlows() {
 	if (nominalsDom_.back() > 0)
 		legs_[1].back() = boost::shared_ptr<CashFlow>(
 			new SimpleCashFlow(nominalsDom_.back(), scheduleDom_.calendar().adjust(scheduleDom_.dates().back(), convention_)) );
+
+	// floating leg 1 - update
+	legs_[0] = IborLeg(scheduleDom_, iborIndexDom_)
+		.withNotionals(nominalsDom_)
+		.withPaymentDayCounter(iborIndexDom_->dayCounter())
+		.withPaymentAdjustment(convention_)
+		.withSpreads(spreadsDom_);
+	for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
+		registerWith(*i);
 
 }
 
