@@ -25,6 +25,7 @@
 #include <ql/termstructures/yield/ratehelpers.hpp>
 #include <ql/time/imm.hpp>
 #include <ql/time/asx.hpp>
+#include <ql/time/calendars/unitedstates.hpp>
 #include <ql/time/calendars/jointcalendar.hpp>
 #include <ql/instruments/makevanillaswap.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
@@ -32,7 +33,6 @@
 #include <ql/currency.hpp>
 #include <ql/indexes/swapindex.hpp>
 #include <ql/cashflows/iborcoupon.hpp>
-
 #include <ql/utilities/null_deleter.hpp>
 
 using boost::shared_ptr;
@@ -829,7 +829,10 @@ namespace QuantLib {
     Real SwapRateHelper::impliedQuote() const {
         QL_REQUIRE(termStructure_ != 0, "term structure not set");
         // we didn't register as observers - force calculation
-        swap_->recalculate();
+        for (Leg::const_iterator c = swap_->floatingLeg().begin();
+             c != swap_->floatingLeg().end(); ++c) {
+            boost::static_pointer_cast<FloatingRateCoupon>(*c)->update();
+        }
         // weak implementation... to be improved
         static const Spread basisPoint = 1.0e-4;
         Real floatingLegNPV = swap_->floatingLegNPV();
@@ -938,7 +941,14 @@ namespace QuantLib {
     Real BMASwapRateHelper::impliedQuote() const {
         QL_REQUIRE(termStructure_ != 0, "term structure not set");
         // we didn't register as observers - force calculation
-        swap_->recalculate();
+        for (Leg::const_iterator c = swap_->bmaLeg().begin();
+             c != swap_->bmaLeg().end(); ++c) {
+            boost::static_pointer_cast<FloatingRateCoupon>(*c)->update();
+        }
+        for (Leg::const_iterator c = swap_->liborLeg().begin();
+             c != swap_->liborLeg().end(); ++c) {
+            boost::static_pointer_cast<FloatingRateCoupon>(*c)->update();
+        }
         return swap_->fairLiborFraction();
     }
 
@@ -959,14 +969,21 @@ namespace QuantLib {
                                        BusinessDayConvention convention,
                                        bool endOfMonth,
                                        bool isFxBaseCurrencyCollateralCurrency,
-                                       const Handle<YieldTermStructure>& coll)
-                                       : RelativeDateRateHelper(fwdPoint), spot_(spotFx), tenor_(tenor),
+                                       const Handle<YieldTermStructure>& coll,
+                                       const Calendar& tradingCalendar)
+    : RelativeDateRateHelper(fwdPoint), spot_(spotFx), tenor_(tenor),
       fixingDays_(fixingDays), cal_(calendar), conv_(convention),
       eom_(endOfMonth),
       isFxBaseCurrencyCollateralCurrency_(isFxBaseCurrencyCollateralCurrency),
-      collHandle_(coll) {
+      collHandle_(coll), tradingCalendar_(tradingCalendar) {
         registerWith(spot_);
         registerWith(collHandle_);
+
+        if (tradingCalendar_.empty())
+            jointCalendar_ = cal_;
+        else
+            jointCalendar_ = JointCalendar(tradingCalendar_, cal_,
+                                           JoinHolidays);
         initializeDates();
     }
 
@@ -975,14 +992,22 @@ namespace QuantLib {
         // then move to the next business day
         Date refDate = cal_.adjust(evaluationDate_);
         earliestDate_ = cal_.advance(refDate, fixingDays_*Days);
-        latestDate_ = cal_.advance(earliestDate_, tenor_, conv_, eom_);
+
+        if (!tradingCalendar_.empty()) {
+            // check if fx trade can be settled in US, if not, adjust it
+            earliestDate_ = jointCalendar_.adjust(earliestDate_);
+            latestDate_ = jointCalendar_.advance(earliestDate_, tenor_,
+                                                 conv_, eom_);
+        } else {
+            latestDate_ = cal_.advance(earliestDate_, tenor_, conv_, eom_);
+        }
     }
 
     Real FxSwapRateHelper::impliedQuote() const {
         QL_REQUIRE(termStructure_ != 0, "term structure not set");
 
         QL_REQUIRE(!collHandle_.empty(), "collateral term structure not set");
-        
+
         DiscountFactor d1 = collHandle_->discount(earliestDate_);
         DiscountFactor d2 = collHandle_->discount(latestDate_);
         Real collRatio = d1 / d2;

@@ -61,7 +61,8 @@ namespace QuantLib {
         /*! This constructor can be invoked by derived classes which
             define a given implementation.
         */
-        DayCounter(const boost::shared_ptr<Impl>& impl) : impl_(impl) {}
+        explicit DayCounter(const boost::shared_ptr<Impl>& impl)
+        : impl_(impl) {}
       public:
         /*! The default constructor returns a day counter with a null
             implementation, which is therefore unusable except as a

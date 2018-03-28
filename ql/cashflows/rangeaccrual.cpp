@@ -335,7 +335,7 @@ namespace QuantLib {
             const Real lowerPrice = digitalPrice(lowerTrigger, initialValue, expiry, deflator);
             const Real upperPrice = digitalPrice(upperTrigger, initialValue, expiry, deflator);
             const Real result =  lowerPrice - upperPrice;
-            QL_REQUIRE(result >0.,
+            QL_REQUIRE(result >=0.,
                 "RangeAccrualPricerByBgm::digitalRangePrice:\n digitalPrice("<<upperTrigger<<
                 "): "<<upperPrice<<" >  digitalPrice("<<lowerTrigger<<"): "<<lowerPrice);
             return result;
@@ -661,11 +661,11 @@ namespace QuantLib {
             refStart = start = schedule_.date(i);
             refEnd   =   end = schedule_.date(i+1);
             paymentDate = calendar.adjust(end, paymentAdjustment_);
-            if (i==0   && !schedule_.isRegular(i+1)) {
+            if (i==0 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)) {
                 BusinessDayConvention bdc = schedule_.businessDayConvention();
                 refStart = calendar.adjust(end - schedule_.tenor(), bdc);
             }
-            if (i==n-1 && !schedule_.isRegular(i+1)) {
+            if (i==n-1 && schedule_.hasIsRegular() && !schedule_.isRegular(i+1)) {
                 BusinessDayConvention bdc = schedule_.businessDayConvention();
                 refEnd = calendar.adjust(start + schedule_.tenor(), bdc);
             }

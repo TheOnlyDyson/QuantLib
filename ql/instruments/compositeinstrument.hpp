@@ -35,11 +35,6 @@ namespace QuantLib {
         is the sum of the NPVs of its components, each possibly
         multiplied by a given factor.
 
-        <b>Example: </b>
-        \link Replication.cpp
-        static replication of a down-and-out barrier option
-        \endlink
-
         \warning Methods that drive the calculation directly (such as
                  recalculate(), freeze() and others) might not work
                  correctly.
@@ -57,6 +52,10 @@ namespace QuantLib {
         //! shorts an instrument from the composite
         void subtract(const boost::shared_ptr<Instrument>& instrument,
                       Real multiplier = 1.0);
+        //! \name Observer interface
+        //@{
+        void deepUpdate();
+        //@}
         //! \name Instrument interface
         //@{
         bool isExpired() const;
