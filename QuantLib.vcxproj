@@ -549,6 +549,7 @@
     <ClInclude Include="ql\ext\instruments\makeaverageois.hpp" />
     <ClInclude Include="ql\ext\instruments\oibasisswap.hpp" />
     <ClInclude Include="ql\ext\instruments\oiccbasisswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\subperiodsswap.hpp" />
     <ClInclude Include="ql\ext\instruments\tenorbasisswap.hpp" />
     <ClInclude Include="ql\ext\pricingengines\all.hpp" />
     <ClInclude Include="ql\ext\pricingengines\crossccyswapengine.hpp" />
@@ -1858,6 +1859,7 @@
     <ClCompile Include="ql\ext\instruments\makeaverageois.cpp" />
     <ClCompile Include="ql\ext\instruments\oibasisswap.cpp" />
     <ClCompile Include="ql\ext\instruments\oiccbasisswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\subperiodsswap.cpp" />
     <ClCompile Include="ql\ext\instruments\tenorbasisswap.cpp" />
     <ClCompile Include="ql\ext\pricingengines\crossccyswapengine.cpp" />
     <ClCompile Include="ql\ext\pricingengines\discountingcurrencyswapengine.cpp" />

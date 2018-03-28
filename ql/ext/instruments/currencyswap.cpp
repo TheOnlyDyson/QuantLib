@@ -433,8 +433,6 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	  spreadsFor_(spreadsFor), spreadsDom_(spreadsDom),
 	  nominalsFor_(nominalsFor), nominalsDom_(scheduleDom.size()-1, nominalDomInitial) {
 
-	outdated_ = false;
-
 	if (paymentConvention)
 		convention_ = *paymentConvention;
 	else
@@ -445,46 +443,46 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 		std::fill(nominalsFor_.begin(), nominalsFor_.end(), nominalsFor[0]);
 	}
 
-	registerWith(fxIndex);
-	registerWith(iborIndexDom);
-    registerWith(iborIndexFor);
+	registerWith(fxIndex_);
+	registerWith(iborIndexDom_);
+    registerWith(iborIndexFor_);
 
 	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
-
+	
 	// floating leg 1
 	currency_[0] = ccyDom;
 	payer_[0] = (payDom ? -1 : +1);
-/* 	legs_[0] = IborLeg(scheduleDom_, iborIndexDom)
-		.withNotionals(nominalsDom_)
-		.withPaymentDayCounter(iborIndexDom->dayCounter())
-		.withPaymentAdjustment(convention_)
-		.withSpreads(spreadsDom);
-	for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
-		registerWith(*i);
- */
+
 	// add initial, interim and final notional flows
 	currency_[1] = ccyDom;
 	payer_[1] = payer_[0];
-	QL_REQUIRE(nominalsDom_.size() < scheduleDom_.size(), "too many float nominals provided");
-
+	
 	legs_[1] = Leg(nominalsDom_.size());
 	
-	updateDomLegFlows();
-
 	// floating leg 2
 	currency_[2] = ccyFor;
 	payer_[2] = (payDom ? +1 : -1);
-	legs_[2] = IborLeg(scheduleFor_, iborIndexFor)
+	
+	// add initial, interim and final notional flows
+	currency_[3] = ccyFor;
+	payer_[3] = payer_[2];
+
+	updateDomLegFlows();
+	updateForLegFlows();
+	}
+	
+void ResetableCrossCurrencySwap::updateForLegFlows() {
+	
+	// floating leg 2
+	legs_[2] = IborLeg(scheduleFor_, iborIndexFor_)
 		.withNotionals(nominalsFor_)
-		.withPaymentDayCounter(iborIndexFor->dayCounter())
+		.withPaymentDayCounter(iborIndexFor_->dayCounter())
 		.withPaymentAdjustment(convention_)
-		.withSpreads(spreadsFor);
+		.withSpreads(spreadsFor_);
 	for (Leg::const_iterator i = legs_[2].begin(); i < legs_[2].end(); ++i)
 		registerWith(*i);
 
 	// add initial, interim and final notional flows
-	currency_[3] = ccyFor;
-	payer_[3] = payer_[2];
 	legs_[3].push_back(boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsFor_[0], scheduleFor_.calendar().adjust(scheduleFor_.dates().front(), convention_))));
 	QL_REQUIRE(nominalsFor_.size() < scheduleFor_.size(), "too many float nominals provided");
@@ -500,9 +498,11 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 
 void ResetableCrossCurrencySwap::updateDomLegFlows() {
 
+	if (nominalsDom_[0] < 0.0)
+		nominalsDom_[0] = nominalsFor_[0] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[0]), forecastFxToday_ );
+		
 	for (Size i = 1; i < nominalsFor_.size(); ++i)
-		// nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(scheduleFor_.calendar().advance(scheduleFor_[i], -1 * fxIndex_->fixingDays(), TimeUnit::Days, Preceding), true);
-		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[i]) );
+		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[i]), forecastFxToday_ );
 
 	legs_[1].front() = boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_))	);

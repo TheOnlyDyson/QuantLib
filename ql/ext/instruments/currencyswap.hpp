@@ -208,11 +208,10 @@ public:
 		const boost::shared_ptr<FxIndex>& fxIndex,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
 
-	void update() { outdated_ = true; updateDomLegFlows(); 	/*try {recalculate();} catch (...) {}; */ LazyObject::update() /* notifyObservers()*/; }
+	void update() { updateDomLegFlows(); LazyObject::update(); }
 
-	void raiseflag() { outdated_ = true; }
-	void lowerflag() { outdated_ = false; }
-	bool getflag() { return outdated_; }
+	void setFxForecast(bool forecast) { forecastFxToday_ = forecast; update(); }
+	bool forecastFxToday() { return forecastFxToday_; }
 
 	const Schedule& domesticSchedule() const { return scheduleDom_; }
 	const Schedule& foreignSchedule() const { return scheduleFor_; }
@@ -223,9 +222,11 @@ public:
 	
 	std::vector<Real> domesticNominals() { return nominalsDom_; }
 	std::vector<Real> foreignNominals() { return nominalsFor_; }
+	
+	void setForeignSpread(std::vector<Rate> spreads) { spreadsFor_ = spreads; updateForLegFlows(); update(); };
 
 private:
-	bool outdated_;
+	void updateForLegFlows();
 	void updateDomLegFlows();
 
 	const Schedule scheduleFor_;
@@ -234,6 +235,8 @@ private:
 	boost::shared_ptr<IborIndex> iborIndexFor_;
 	boost::shared_ptr<IborIndex> iborIndexDom_;
 	boost::shared_ptr<FxIndex> fxIndex_;
+	
+	bool forecastFxToday_ = false;
 	
 	std::vector<Real> nominalsFor_;
 	std::vector<Real> nominalsDom_;
@@ -245,6 +248,6 @@ private:
 
 };
 
-}
+};
 
 #endif

@@ -4225,6 +4225,9 @@
     <ClInclude Include="ql\ext\pricingengines\all.hpp">
       <Filter>ext\pricingengines</Filter>
     </ClInclude>
+    <ClInclude Include="ql\ext\instruments\subperiodsswap.hpp">
+      <Filter>ext\instruments</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -6808,6 +6811,9 @@
     </ClCompile>
     <ClCompile Include="ql\ext\pricingengines\oiccbasisswapengine.cpp">
       <Filter>ext\pricingengines</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\instruments\subperiodsswap.cpp">
+      <Filter>ext\instruments</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

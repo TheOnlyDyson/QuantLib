@@ -18,19 +18,18 @@
 
 #include <ql/cashflows/fixedratecoupon.hpp>
 #include <ql/time/schedule.hpp>
-#include <qle/cashflows/subperiodscoupon.hpp>
-#include <qle/instruments/subperiodsswap.hpp>
+#include <ql/ext/cashflows/subperiodscoupon.hpp>
+#include <ql/ext/instruments/subperiodsswap.hpp>
 
-using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 SubPeriodsSwap::SubPeriodsSwap(const Date& effectiveDate, Real nominal, const Period& swapTenor, bool isPayer,
                                const Period& fixedTenor, Rate fixedRate, const Calendar& fixedCalendar,
                                const DayCounter& fixedDayCount, BusinessDayConvention fixedConvention,
                                const Period& floatPayTenor, const boost::shared_ptr<IborIndex>& iborIndex,
                                const DayCounter& floatingDayCount, DateGeneration::Rule rule,
-                               SubPeriodsCoupon::Type type)
+                               SubPeriodsCoupon_ext::Type type)
 
     : Swap(2), nominal_(nominal), isPayer_(isPayer), fixedRate_(fixedRate), fixedDayCount_(fixedDayCount),
       floatIndex_(iborIndex), floatDayCount_(floatingDayCount), floatPayTenor_(floatPayTenor), type_(type) {
