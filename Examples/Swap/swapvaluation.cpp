@@ -474,6 +474,8 @@ int main(int, char* []) {
 			<< std::endl;
 		std::cout << "Resetable XCCY (end)" << std::endl;
 
+		Settings::instance().evaluationDate() = todaysDate+2;
+
 		///* AFR*/
 
         Date fwdStart = calendar.advance(settlementDate, 1, Years);

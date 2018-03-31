@@ -205,7 +205,7 @@ public:
 		const boost::shared_ptr<IborIndex>& iborIndexDom, std::vector<Rate> spreadsDom, const Currency& ccyFor,
 		std::vector<Real> nominalsFor, const Schedule& scheduleFor,
 		const boost::shared_ptr<IborIndex>& iborIndexFor, std::vector<Rate> spreadsFor,
-		const boost::shared_ptr<FxIndex>& fxIndex,
+		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
 
 	void update() { updateDomLegFlows(); LazyObject::update(); }
@@ -224,7 +224,12 @@ public:
 	std::vector<Real> foreignNominals() { return nominalsFor_; }
 	
 	void setForeignSpread(std::vector<Rate> spreads) { spreadsFor_ = spreads; updateForLegFlows(); update(); };
-
+	
+	Real inCcyDomLegNPV() { return inCcyLegNPV(0)+inCcyLegNPV(1); }
+	Real inCcyForLegNPV() { return inCcyLegNPV(2)+inCcyLegNPV(3); }
+	Real inCcyDomLegBPS() { return inCcyLegBPS(0)+inCcyLegBPS(1); }
+	Real inCcyForLegBPS() { return inCcyLegBPS(2)+inCcyLegBPS(3); }
+	
 private:
 	void updateForLegFlows();
 	void updateDomLegFlows();
@@ -237,6 +242,7 @@ private:
 	boost::shared_ptr<FxIndex> fxIndex_;
 	
 	bool forecastFxToday_ = false;
+	bool fixedNominalDomInitial_ = true;
 	
 	std::vector<Real> nominalsFor_;
 	std::vector<Real> nominalsDom_;
