@@ -334,9 +334,6 @@
     <Filter Include="ext">
       <UniqueIdentifier>{938b25c7-364b-4899-8db3-0329f222f518}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ext\cashflows">
-      <UniqueIdentifier>{1dd13f51-55e0-42e9-bd3e-547ca9218175}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ext\instruments">
       <UniqueIdentifier>{93277976-411a-4897-b62c-ed2b723c93ad}</UniqueIdentifier>
     </Filter>
@@ -345,6 +342,9 @@
     </Filter>
     <Filter Include="ext\pricingengines">
       <UniqueIdentifier>{f803facc-378f-445f-be89-1fdbd7806858}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\indexes\cashflows">
+      <UniqueIdentifier>{1dd13f51-55e0-42e9-bd3e-547ca9218175}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -4148,25 +4148,25 @@
       <Filter>indexes\ibor</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\averageonindexedcoupon.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\averageonindexedcouponpricer.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\couponpricer_ext.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\floatingratefxlinkednotionalcoupon.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\fxlinkedcashflow.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\subperiodscoupon.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\subperiodscouponpricer.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\instruments\averageois.hpp">
       <Filter>ext\instruments</Filter>
@@ -4214,7 +4214,7 @@
       <Filter>ext\pricingengines</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\cashflows\all.hpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClInclude>
     <ClInclude Include="ql\ext\indexes\all.hpp">
       <Filter>ext\indexes</Filter>
@@ -6750,22 +6750,22 @@
       <Filter>experimental\math</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\averageonindexedcoupon.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\averageonindexedcouponpricer.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\couponpricer_ext.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\fxlinkedcashflow.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\subperiodscoupon.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\cashflows\subperiodscouponpricer.cpp">
-      <Filter>ext\cashflows</Filter>
+      <Filter>ext\indexes\cashflows</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\instruments\averageois.cpp">
       <Filter>ext\instruments</Filter>

@@ -474,19 +474,11 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	updateDomLegFlows();
 	updateForLegFlows();
 	}
-	
-void ResetableCrossCurrencySwap::updateForLegFlows() {
-	
-	// floating leg 2
-	legs_[2] = IborLeg(scheduleFor_, iborIndexFor_)
-		.withNotionals(nominalsFor_)
-		.withPaymentDayCounter(iborIndexFor_->dayCounter())
-		.withPaymentAdjustment(convention_)
-		.withSpreads(spreadsFor_);
-	for (Leg::const_iterator i = legs_[2].begin(); i < legs_[2].end(); ++i)
-		registerWith(*i);
 
-	// add initial, interim and final notional flows
+/* foreign leg #2 #3 */
+void ResetableCrossCurrencySwap::updateForLegFlows() const {
+	
+	// add initial, interim and final notional flows on leg #3
 	legs_[3].front() = boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsFor_[0], scheduleFor_.calendar().adjust(scheduleFor_.dates().front(), convention_)));
 
@@ -500,50 +492,103 @@ void ResetableCrossCurrencySwap::updateForLegFlows() {
 		legs_[3].back() = boost::shared_ptr<CashFlow>(
 			new SimpleCashFlow(nominalsFor_.back(), scheduleFor_.calendar().adjust(scheduleFor_.dates().back(), convention_)));
 
-	//legs_[3]. push_back(boost::shared_ptr<CashFlow>(
-	//	new SimpleCashFlow(-nominalsFor_[0], scheduleFor_.calendar().adjust(scheduleFor_.dates().front(), convention_))));
-	//QL_REQUIRE(nominalsFor_.size() < scheduleFor_.size(), "too many float nominals provided");
-	//for (Size i = 1; i < nominalsFor_.size(); i++) {
-	//	Real flow = nominalsFor_[i - 1] - nominalsFor_[i];
-	//	legs_[3].push_back(boost::shared_ptr<CashFlow>(
-	//		new SimpleCashFlow(flow, scheduleFor_.calendar().adjust(scheduleFor_[i], convention_))));
-	//}
-	//if (nominalsFor_.back() > 0)
-	//	legs_[3].push_back(boost::shared_ptr<CashFlow>(
-	//		new SimpleCashFlow(nominalsFor_.back(), scheduleFor_.calendar().adjust(scheduleFor_.dates().back(), convention_))));
-}
+	// floating leg #2
+	legs_[2] = IborLeg(scheduleFor_, iborIndexFor_)
+		.withNotionals(nominalsFor_)
+		.withPaymentDayCounter(iborIndexFor_->dayCounter())
+		.withPaymentAdjustment(convention_)
+		.withSpreads(spreadsFor_);
+	for (Leg::const_iterator i = legs_[2].begin(); i < legs_[2].end(); ++i)
+		const_cast<ResetableCrossCurrencySwap*>(this)->registerWith(*i);
 
-void ResetableCrossCurrencySwap::updateDomLegFlows() {
+} 
+
+/* domestic leg #0 #1 */
+void ResetableCrossCurrencySwap::updateDomLegFlows() const  {
 
 	// update nominals
 	if (nominalsDom_[0] < 0.0 || !fixedNominalDomInitial_)
-		nominalsDom_[0] = nominalsFor_[0] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[0]), forecastFxToday_ );
-		
-	for (Size i = 1; i < nominalsFor_.size(); ++i)
-		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing( fxIndex_->fixingDate(scheduleFor_[i]), forecastFxToday_ );
+		nominalsDom_[0] = nominalsFor_[0] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleFor_[0]), forecastFxToday_);
 
- 	legs_[1].front() = boost::shared_ptr<CashFlow>(
-		new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_))	);
+	for (Size i = 1; i < nominalsFor_.size(); ++i)
+		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleFor_[i]), forecastFxToday_);
+
+	legs_[1].front() = boost::shared_ptr<CashFlow>(
+		new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_)));
 
 	for (Size i = 1; i < nominalsDom_.size(); i++) {
 		Real flow = (nominalsDom_[i - 1] - nominalsDom_[i]);
 		legs_[1].at(i) = boost::shared_ptr<CashFlow>(
-		    new SimpleCashFlow(flow, scheduleDom_.calendar().adjust(scheduleDom_[i], convention_)) );
+			new SimpleCashFlow(flow, scheduleDom_.calendar().adjust(scheduleDom_[i], convention_)));
 	}
 
 	if (nominalsDom_.back() > 0)
 		legs_[1].back() = boost::shared_ptr<CashFlow>(
-			new SimpleCashFlow(nominalsDom_.back(), scheduleDom_.calendar().adjust(scheduleDom_.dates().back(), convention_)) );
- 
+			new SimpleCashFlow(nominalsDom_.back(), scheduleDom_.calendar().adjust(scheduleDom_.dates().back(), convention_)));
+
 	// floating leg - update
 	legs_[0] = IborLeg(scheduleDom_, iborIndexDom_)
 		.withNotionals(nominalsDom_)
 		.withPaymentDayCounter(iborIndexDom_->dayCounter())
 		.withPaymentAdjustment(convention_)
 		.withSpreads(spreadsDom_);
-	//for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
-	//	registerWith(*i);
 
+	for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
+		const_cast<ResetableCrossCurrencySwap*>(this)->registerWith(*i) ;
+
+}
+
+void ResetableCrossCurrencySwap::setupArguments(PricingEngine::arguments* args) const {
+
+	CurrencySwap::setupArguments(args);
+
+	ResetableCrossCurrencySwap::arguments* arguments = dynamic_cast<ResetableCrossCurrencySwap::arguments*>(args);
+
+	/* Returns here if e.g. args is CrossCcySwap::arguments which
+	is the case if PricingEngine is a CrossCcySwap::engine. */
+	if (!arguments)
+		return;
+
+	arguments->spreadsFor = spreadsFor_;
+	arguments->spreadsDom = spreadsDom_;
+}
+
+void ResetableCrossCurrencySwap::fetchResults(const PricingEngine::results* r) const {
+
+	CurrencySwap::fetchResults(r);
+
+	const ResetableCrossCurrencySwap::results* results = dynamic_cast<const ResetableCrossCurrencySwap::results*>(r);
+	if (results) {
+		/* If PricingEngine::results are of type
+		CrossCcyBasisSwap::results */
+		fairForSpread_ = results->fairForSpread;
+		fairDomSpread_ = results->fairDomSpread;
+	}
+	else {
+		/* If not, e.g. if the engine is a CrossCcySwap::engine */
+		fairForSpread_ = std::vector<Rate>(spreadsFor_.size(), Null<Rate>());
+		fairDomSpread_ = std::vector<Rate>(spreadsDom_.size(), Null<Rate>());
+	}
+
+	/* Calculate the fair pay and receive spreads if they are null */
+	static Rate basisPoint = 1.0e-4;
+	if (fairForSpread_.front() == Null<Rate>()) {
+		if (legBPS_[2] != Null<Real>()) // leg[2] is foreign IborLeg
+			for (Size i = 0; i < spreadsFor_.size(); i++) 
+				fairForSpread_[i] = spreadsFor_[i] - NPV_ / (legBPS_[2] / basisPoint);
+	}
+	if (fairDomSpread_.front() == Null<Rate>()) {
+		if (legBPS_[0] != Null<Real>()) // leg[0] is domestic IborLeg
+			for (Size i = 0; i < spreadsDom_.size(); i++)
+				fairDomSpread_[i] = spreadsDom_[i] - NPV_ / (legBPS_[0] / basisPoint);
+	}
+
+}
+
+void ResetableCrossCurrencySwap::results::reset() {
+	CurrencySwap::results::reset();
+	fairForSpread.clear();
+	fairDomSpread.clear();
 }
 
 }

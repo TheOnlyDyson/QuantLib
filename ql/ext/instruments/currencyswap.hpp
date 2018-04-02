@@ -37,7 +37,7 @@
 #include <ql/ext/indexes/fxindex.hpp>
 // #include <ql/ext/cashflows/fxlinkedcashflow.hpp>
 
-
+#include <iostream>
 
 namespace QuantLib {
 
@@ -126,7 +126,7 @@ protected:
     void setupExpired() const;
     //@}
     // data members
-    std::vector<Leg> legs_;
+    mutable std::vector<Leg> legs_;
     std::vector<Real> payer_;
     std::vector<Currency> currency_;
     mutable std::vector<Real> legNPV_, inCcyLegNPV_;
@@ -200,6 +200,9 @@ public:
 
 class ResetableCrossCurrencySwap : public CurrencySwap {
 public:
+	class arguments;
+	class results;
+
 	// floating/floating w Mark-to-Market notional resets on the domestic (Dom) leg
 	ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
 		const boost::shared_ptr<IborIndex>& iborIndexDom, std::vector<Rate> spreadsDom, const Currency& ccyFor,
@@ -208,7 +211,10 @@ public:
 		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
 
-	void update() { updateDomLegFlows(); LazyObject::update(); }
+	void setupArguments(PricingEngine::arguments* args) const;
+	void fetchResults(const PricingEngine::results*) const;
+
+	void performCalculations() const { updateDomLegFlows(); updateForLegFlows(); CurrencySwap::performCalculations(); }
 
 	void setFxForecast(bool forecast) { forecastFxToday_ = forecast; update(); }
 	bool forecastFxToday() { return forecastFxToday_; }
@@ -220,19 +226,46 @@ public:
 	const boost::shared_ptr<IborIndex>& foreignIndex() const { return iborIndexFor_; }
 	const boost::shared_ptr<IborIndex>& domesticIndex() const { return iborIndexDom_; }
 	
-	std::vector<Real> domesticNominals() { return nominalsDom_; }
-	std::vector<Real> foreignNominals() { return nominalsFor_; }
+	std::vector<Real> domesticNominals() { updateDomLegFlows(); return nominalsDom_; }
+	std::vector<Real> foreignNominals() { updateForLegFlows(); return nominalsFor_; }
 	
-	void setForeignSpread(std::vector<Rate> spreads) { spreadsFor_ = spreads; updateForLegFlows(); update(); };
+	void setForeignSpread(std::vector<Rate> spreads) { spreadsFor_ = spreads; updateForLegFlows(); };
 	
-	Real inCcyDomLegNPV() { return inCcyLegNPV(0)+inCcyLegNPV(1); }
-	Real inCcyForLegNPV() { return inCcyLegNPV(2)+inCcyLegNPV(3); }
-	Real inCcyDomLegBPS() { return inCcyLegBPS(0)+inCcyLegBPS(1); }
-	Real inCcyForLegBPS() { return inCcyLegBPS(2)+inCcyLegBPS(3); }
-	
+	Real inCcyDomLegNPV() {
+		calculate();
+		return inCcyLegNPV_[0] + inCcyLegNPV_[1];
+	}
+	Real inCcyDomLegBPS() {
+		calculate();
+		return inCcyLegBPS_[0] + inCcyLegBPS_[1];
+	}
+	Real inCcyForLegNPV() {
+		calculate();
+		return inCcyLegNPV_[2] + inCcyLegNPV_[3];
+	}
+	Real inCcyForLegBPS() {
+		calculate();
+		return inCcyLegBPS_[2] + inCcyLegBPS_[3];
+	}
+
+	Real forLegNPV() {
+		calculate();
+		return legNPV_[2] + legNPV_[3];
+	}
+	std::vector<Rate> fairForSpread() {
+		calculate();
+		QL_REQUIRE(!fairForSpread_.empty(), "Fair foreign leg spread is not available");
+		return fairForSpread_;
+	}
+	std::vector<Rate> fairDomSpread() {
+		calculate();
+		QL_REQUIRE(!fairDomSpread_.empty(), "Fair domestic leg spread is not available");
+		return fairDomSpread_;
+	}
+
 private:
-	void updateForLegFlows();
-	void updateDomLegFlows();
+	void updateForLegFlows() const; // bool hasUpdateForeignFlow_ = false;
+	void updateDomLegFlows() const; // bool hasUpdateDomesticFlow_ = false;
 
 	const Schedule scheduleFor_;
 	const Schedule scheduleDom_;
@@ -244,14 +277,30 @@ private:
 	bool forecastFxToday_ = false;
 	bool fixedNominalDomInitial_ = true;
 	
-	std::vector<Real> nominalsFor_;
-	std::vector<Real> nominalsDom_;
+	mutable std::vector<Real> nominalsFor_;
+	mutable std::vector<Real> nominalsDom_;
 	
 	std::vector<Rate> spreadsFor_;
 	std::vector<Rate> spreadsDom_;
 
 	BusinessDayConvention convention_;
 
+	mutable std::vector<Rate> fairForSpread_;
+	mutable std::vector<Rate> fairDomSpread_;
+};
+
+class ResetableCrossCurrencySwap::arguments : public CurrencySwap::arguments {
+public:
+	std::vector<Rate> spreadsFor;
+	std::vector<Rate> spreadsDom;
+	void validate() const;
+};
+
+class ResetableCrossCurrencySwap::results : public CurrencySwap::results {
+public:
+	std::vector<Rate> fairForSpread;
+	std::vector<Rate> fairDomSpread;
+	void reset();
 };
 
 };

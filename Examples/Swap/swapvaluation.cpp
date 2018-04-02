@@ -435,9 +435,10 @@ int main(int, char* []) {
 		std::vector<Real> nominalsFor(floatSchedule_3M.size()-1, 10000.) ;
 		boost::shared_ptr<IborIndex> liborIndex_3M(
 			new USDLibor(Period(Quarterly),forecastingTermStructure));
-		std::vector<Rate> spreads(1,0.0);
+		std::vector<Rate> spreads1(1,0.0);
+		std::vector<Rate> spreads2(1, -0.01);
 
-		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.0)); 
+		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.07)); 
 		RelinkableHandle<Quote> fxHandle(fxQuote); 
 		std::string name("ECB");
 
@@ -450,8 +451,8 @@ int main(int, char* []) {
 		discountingTermStructure.linkTo(depoSwapTermStructure);
 
 		ResetableCrossCurrencySwap xccy(payDom, ccyDom, nominalDomInitial, floatSchedule_3M,
-			liborIndex_3M, spreads, ccyFor, nominalsFor, floatSchedule_3M,
-			euriborIndex_3M, spreads, fxIndexPtr, Following);
+			liborIndex_3M, spreads1, ccyFor, nominalsFor, floatSchedule_3M,
+			euriborIndex_3M, spreads2, fxIndexPtr, Following);
 
 		boost::shared_ptr<PricingEngine> xcSwapEngine(
 			new DiscountingCurrencySwapEngine(discountingTermStructure, discountingTermStructure, 
@@ -464,6 +465,15 @@ int main(int, char* []) {
 		std::cout << "NPV = "
 			<< std::fixed << std::setprecision(2) << xccy.NPV()
 			<< std::endl;
+		std::cout << "Foreign BPS in forCcy = "
+			<< std::fixed << std::setprecision(2) << xccy.inCcyForLegBPS()
+			<< std::endl;
+
+		for (Size i = 0; i < spreads2.size(); i++)
+			std::cout << "#" << i << " fair spread = "
+				<< std::fixed << std::setprecision(6) << xccy.fairForSpread()[i]
+				<< std::endl;
+
 		//std::cout << "Resetable XCCY (end)" << std::endl;
 
 		fxQuote->setValue(1.1);
