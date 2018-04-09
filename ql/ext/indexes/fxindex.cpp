@@ -101,6 +101,38 @@ Real FxIndex::fixing(const Date& fixingDate, bool forecastTodaysFixing) const {
     return result;
 }
 
+Real FxIndex::fixing2(const Date& fixingDate, bool forecastTodaysFixing, bool as_instant_fwd) const {
+
+	QL_REQUIRE(isValidFixingDate(fixingDate), "Fixing date " << fixingDate << " is not valid");
+
+	Date today = Settings::instance().evaluationDate();
+
+	if (fixingDate > today || (fixingDate == today && forecastTodaysFixing))
+		return forecastFixing2(fixingDate, as_instant_fwd);
+
+	Real result = Null<Decimal>();
+
+	if (fixingDate < today || Settings::instance().enforcesTodaysHistoricFixings()) {
+		// must have been fixed
+		// do not catch exceptions
+		result = pastFixing(fixingDate);
+		QL_REQUIRE(result != Null<Real>(), "Missing " << name() << " fixing for " << fixingDate);
+	}
+	else {
+		try {
+			// might have been fixed
+			result = pastFixing(fixingDate);
+		}
+		catch (Error&) {
+			; // fall through and forecast
+		}
+		if (result == Null<Real>())
+			return forecastFixing(fixingDate);
+	}
+
+	return result;
+}
+
 Real FxIndex::forecastFixing(const Date& fixingDate) const {
     QL_REQUIRE(!sourceYts_.empty() && !targetYts_.empty(), "null term structure set to this instance of " << name());
 
@@ -131,6 +163,20 @@ Real FxIndex::forecastFixing(const Date& fixingDate) const {
                    (sourceYts_->discount(refValueDate) * targetYts_->discount(fixingValueDate));
 
     return forward;
+}
+
+Real FxIndex::forecastFixing2(const Date & fixingDate, bool as_instant_fwd) const
+{
+	Date fixingValueDate = valueDate(fixingDate);
+	Real forward_spot = forecastFixing(fixingDate);
+
+	if (as_instant_fwd)
+		// return the *instantaneous* forward-FX-Rate on fixingDate
+		return forward_spot * sourceYts_->discount(fixingDate) * targetYts_->discount(fixingValueDate) /
+			(sourceYts_->discount(fixingValueDate) * targetYts_->discount(fixingDate));
+	else
+		// return the forward-FX-Spot
+		return forward_spot;
 }
 
 } // namespace QuantLib

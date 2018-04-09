@@ -28,6 +28,8 @@
 #include <ql/currency.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
 #include <ql/handle.hpp>
+#include <ql/time/calendars/all.hpp>
+#include <ql/quotes/simplequote.hpp>
 
 #include <ql/ext/instruments/currencyswap.hpp>
 
@@ -62,11 +64,37 @@ public:
 		                          const Currency& npvCurrency,
 		                          boost::optional<bool> includeSettlementDateFlows = boost::none,
 		                          Date settlementDate = Date(), Date npvDate = Date());
+	DiscountingCurrencySwapEngine(const Handle<YieldTermStructure>& discountCurve1,
+								  const Handle<YieldTermStructure>& discountCurve2,
+								  const FxIndex& fxIndex1,
+		                          const FxIndex& fxIndex2,
+								  const Currency& currency1,
+								  const Currency& currency2,
+								  const Currency& npvCurrency,
+								  boost::optional<bool> includeSettlementDateFlows = boost::none,
+								  Date settlementDate = Date(), Date npvDate = Date());
+	DiscountingCurrencySwapEngine(const Handle<YieldTermStructure>& discountCurveDom,
+								  const Handle<YieldTermStructure>& discountCurveFor,
+								  const boost::shared_ptr<FxIndex>& fxIndex,
+								  boost::optional<bool> includeSettlementDateFlows = boost::none,
+								  Date settlementDate = Date(), Date npvDate = Date());
+	DiscountingCurrencySwapEngine(const Handle<YieldTermStructure>& discountCurve1,
+		                          const Handle<YieldTermStructure>& discountCurve2,
+								  const Handle<Quote>& fxQuote1,
+								  const Handle<Quote>& fxQuote2,
+								  const Currency& currency1,
+								  const Currency& currency2,
+								  const Currency& npvCurrency,
+								  const Calendar& spot_calendar, const int quote_spot_lag,
+								  boost::optional<bool> includeSettlementDateFlows = boost::none,
+								  Date settlementDate = Date(), Date npvDate = Date());
+
 
     void calculate() const;
     std::vector<Handle<YieldTermStructure> > discountCurves() { return discountCurves_; }
     std::vector<Currency> currencies() { return currencies_; }
     Currency npvCurrency() { return npvCurrency_; }
+	Calendar spotCalendar() { return spot_calendar_; }
 
 private:
     Handle<YieldTermStructure> fetchTS(Currency ccy) const;
@@ -75,10 +103,12 @@ private:
     std::vector<Handle<YieldTermStructure> > discountCurves_;
     std::vector<Handle<Quote> > fxQuotes_;
     std::vector<Currency> currencies_;
+	Calendar spot_calendar_;
     Currency npvCurrency_;
     boost::optional<bool> includeSettlementDateFlows_;
     Date settlementDate_;
     Date npvDate_;
+	int quote_spot_lag_ = 0;
 };
 }
 

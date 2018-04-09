@@ -70,6 +70,7 @@ public:
     Calendar fixingCalendar() const;
     bool isValidFixingDate(const Date& fixingDate) const;
     Real fixing(const Date& fixingDate, bool forecastTodaysFixing = false) const;
+	Real fixing2(const Date& fixingDate, bool forecastTodaysFixing = true, bool as_instant_fwd = true) const;
     //@}
     //! \name Observer interface
     //@{
@@ -82,6 +83,7 @@ public:
     Date fixingDate(const Date& valueDate) const;
     const Currency& sourceCurrency() const { return sourceCurrency_; }
     const Currency& targetCurrency() const { return targetCurrency_; }
+	const Handle<Quote> fxQuote() const { return fxQuote_; }
     //@}
     /*! \name Date calculations */
     virtual Date valueDate(const Date& fixingDate) const;
@@ -89,6 +91,7 @@ public:
     //@{
     //! It can be overridden to implement particular conventions
     virtual Real forecastFixing(const Date& fixingDate) const;
+	virtual Real forecastFixing2(const Date& fixingDate, bool as_instant_fwd) const ;
     Real pastFixing(const Date& fixingDate) const;
     // @}
 protected:

@@ -44,6 +44,8 @@ DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
         registerWith(discountCurves_[i]);
         registerWith(fxQuotes_[i]);
     }
+
+	spot_calendar_ = NullCalendar();
 }
 
 DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
@@ -69,12 +71,58 @@ DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
 	currencies_[0] = currency1;
 	currencies_[1] = currency2;
 
+	spot_calendar_ = NullCalendar();
+
 	for (Size i = 0; i < discountCurves_.size(); i++) {
 		registerWith(discountCurves_[i]);
 		registerWith(fxQuotes_[i]);
 	}
 }
 
+DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
+	const Handle<YieldTermStructure>& discountCurve1, const Handle<YieldTermStructure>& discountCurve2, 
+	const FxIndex & fxIndex1, const FxIndex & fxIndex2, 
+	const Currency & currency1, const Currency & currency2, const Currency & npvCurrency, 
+	boost::optional<bool> includeSettlementDateFlows, Date settlementDate, Date npvDate)
+	: DiscountingCurrencySwapEngine(
+		discountCurve1, discountCurve2, fxIndex1.fxQuote(), fxIndex2.fxQuote(), 
+		currency1, currency2, npvCurrency,
+		includeSettlementDateFlows, settlementDate, npvDate)
+{
+	QL_REQUIRE(fxIndex1.fixingDays() == fxIndex1.fixingDays(), "Number of "
+		"fixing days does not match for FxIndices in PricingEngine.");
+	quote_spot_lag_ = fxIndex1.fixingDays();
+	spot_calendar_  = JointCalendar(fxIndex1.fixingCalendar(), fxIndex2.fixingCalendar());
+}
+
+DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
+	const Handle<YieldTermStructure>& discountCurveDom, const Handle<YieldTermStructure>& discountCurveFor, 
+	const boost::shared_ptr<FxIndex>& fxIndex,
+	boost::optional<bool> includeSettlementDateFlows, Date settlementDate, Date npvDate)
+	: DiscountingCurrencySwapEngine(
+		discountCurveDom, discountCurveFor, 
+		Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))), fxIndex->fxQuote(),
+		fxIndex->targetCurrency(), fxIndex->sourceCurrency(), fxIndex->targetCurrency(),
+		includeSettlementDateFlows, settlementDate, npvDate)
+{
+	quote_spot_lag_ = fxIndex->fixingDays();
+	spot_calendar_  = fxIndex->fixingCalendar();
+}
+
+DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
+	const Handle<YieldTermStructure>& discountCurve1, const Handle<YieldTermStructure>& discountCurve2, 
+	const Handle<Quote>& fxQuote1, const Handle<Quote>& fxQuote2, 
+	const Currency & currency1, const Currency & currency2, const Currency & npvCurrency, 
+	const Calendar & spot_calendar, const int quote_spot_lag, 
+	boost::optional<bool> includeSettlementDateFlows, Date settlementDate, Date npvDate)
+	: DiscountingCurrencySwapEngine(
+		discountCurve1, discountCurve2, fxQuote1, fxQuote2,
+		currency1, currency2, npvCurrency,
+		includeSettlementDateFlows, settlementDate, npvDate)
+{
+	quote_spot_lag_ = quote_spot_lag;
+	spot_calendar_  = spot_calendar;
+}
 
 Handle<YieldTermStructure> DiscountingCurrencySwapEngine::fetchTS(Currency ccy) const {
     std::vector<Currency>::const_iterator i = std::find(currencies_.begin(), currencies_.end(), ccy);
@@ -161,10 +209,15 @@ void DiscountingCurrencySwapEngine::calculate() const {
             }
 
             // Converts into base currency and adds.
-            Handle<Quote> fx = fetchFX(ccy);
-            results_.legNPV[i] = results_.inCcyLegNPV[i] * fx->value();
+            Handle<Quote> fx = fetchFX(ccy); 
+
+			// Adjust the Fx Quote from being spot to instantaneous Fx rate if quote_spot_lag_>0.
+			Date spot_date = spot_calendar_.advance(results_.valuationDate, quote_spot_lag_, Days);
+			Real fx_conv_factor = quote_spot_lag_>0 ? npvCcyYts->discount(spot_date) / yts->discount(spot_date) : 1;
+
+            results_.legNPV[i] = results_.inCcyLegNPV[i] * fx->value() * fx_conv_factor;
             if (results_.inCcyLegBPS[i] != Null<Real>()) {
-                results_.legBPS[i] = results_.inCcyLegBPS[i] * fx->value();
+                results_.legBPS[i] = results_.inCcyLegBPS[i] * fx->value() * fx_conv_factor;
             } else {
                 results_.legBPS[i] = Null<Real>();
             }

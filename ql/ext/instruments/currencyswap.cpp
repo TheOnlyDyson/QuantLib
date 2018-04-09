@@ -459,7 +459,7 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	currency_[1] = ccyDom;
 	payer_[1] = payer_[0];
 	
-	legs_[1].resize(nominalsDom_.size());
+	legs_[1].resize(scheduleDom_.size());
 	
 	// floating leg 2
 	currency_[2] = ccyFor;
@@ -469,7 +469,7 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	currency_[3] = ccyFor;
 	payer_[3] = payer_[2];
 
-	legs_[3].resize(nominalsFor_.size());
+	legs_[3].resize(scheduleFor_.size());
 
 	updateDomLegFlows();
 	updateForLegFlows();
@@ -508,10 +508,10 @@ void ResetableCrossCurrencySwap::updateDomLegFlows() const  {
 
 	// update nominals
 	if (nominalsDom_[0] < 0.0 || !fixedNominalDomInitial_)
-		nominalsDom_[0] = nominalsFor_[0] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleFor_[0]), forecastFxToday_);
+		nominalsDom_[0] = nominalsFor_[0] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleDom_[0]), forecastFxToday_);
 
-	for (Size i = 1; i < nominalsFor_.size(); ++i)
-		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleFor_[i]), forecastFxToday_);
+	for (Size i = 1; i < nominalsDom_.size(); ++i)
+		nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleDom_[i]), forecastFxToday_);
 
 	legs_[1].front() = boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsDom_[0], scheduleDom_.calendar().adjust(scheduleDom_.dates().front(), convention_)));

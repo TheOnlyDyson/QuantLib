@@ -247,7 +247,10 @@ public:
 		calculate();
 		return inCcyLegBPS_[2] + inCcyLegBPS_[3];
 	}
-
+	Real domLegNPV() {
+		calculate();
+		return legNPV_[0] + legNPV_[1];
+	}
 	Real forLegNPV() {
 		calculate();
 		return legNPV_[2] + legNPV_[3];
@@ -274,7 +277,7 @@ private:
 	boost::shared_ptr<IborIndex> iborIndexDom_;
 	boost::shared_ptr<FxIndex> fxIndex_;
 	
-	bool forecastFxToday_ = false;
+	bool forecastFxToday_ = true;
 	bool fixedNominalDomInitial_ = true;
 	
 	mutable std::vector<Real> nominalsFor_;

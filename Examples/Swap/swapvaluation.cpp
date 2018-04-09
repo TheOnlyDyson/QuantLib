@@ -392,7 +392,7 @@ int main(int, char* []) {
                                      new Euribor6M(forecastingTermStructure));
         Spread spread = 0.0;
 
-        Integer lenghtInYears = 5;
+        Integer lenghtInYears = 1;
         VanillaSwap::Type swapType = VanillaSwap::Payer;
 
         Date maturity = settlementDate + lenghtInYears*Years;
@@ -456,7 +456,7 @@ int main(int, char* []) {
 
 		boost::shared_ptr<PricingEngine> xcSwapEngine(
 			new DiscountingCurrencySwapEngine(discountingTermStructure, discountingTermStructure, 
-				Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))), fxHandle, ccyDom,ccyFor,ccyDom));
+				Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))), fxHandle, ccyDom,ccyFor,ccyDom,TARGET(),2));
 
 		xccy.setPricingEngine(xcSwapEngine);
 
