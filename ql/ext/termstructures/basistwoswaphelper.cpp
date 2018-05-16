@@ -21,9 +21,9 @@
 #include <ql/cashflows/floatingratecoupon.hpp>
 #endif
 
-#include <qle/termstructures/basistwoswaphelper.hpp>
+#include <ql/ext/termstructures/basistwoswaphelper.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}

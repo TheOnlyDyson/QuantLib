@@ -557,6 +557,9 @@
     <ClInclude Include="ql\ext\pricingengines\discountingfxforwardengine.hpp" />
     <ClInclude Include="ql\ext\pricingengines\discountingswapenginemulticurve.hpp" />
     <ClInclude Include="ql\ext\pricingengines\oiccbasisswapengine.hpp" />
+    <ClInclude Include="ql\ext\termstructures\basistwoswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\crossccybasisswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\tenorbasisswaphelper.hpp" />
     <ClInclude Include="ql\indexes\ibor\aonia.hpp" />
     <ClInclude Include="ql\indexes\ibor\bbsw.hpp" />
     <ClInclude Include="ql\indexes\ibor\bkbm.hpp" />
@@ -1866,6 +1869,9 @@
     <ClCompile Include="ql\ext\pricingengines\discountingfxforwardengine.cpp" />
     <ClCompile Include="ql\ext\pricingengines\discountingswapenginemulticurve.cpp" />
     <ClCompile Include="ql\ext\pricingengines\oiccbasisswapengine.cpp" />
+    <ClCompile Include="ql\ext\termstructures\basistwoswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\crossccybasisswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\tenorbasisswaphelper.cpp" />
     <ClCompile Include="ql\math\polynomialmathfunction.cpp" />
     <ClCompile Include="ql\math\pascaltriangle.cpp" />
     <ClCompile Include="ql\patterns\observable.cpp" />

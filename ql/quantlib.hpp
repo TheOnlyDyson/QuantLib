@@ -65,4 +65,4 @@
 #include <ql/ext/pricingengines/all.hpp>
 //#include <ql/ext/processes/all.hpp>
 //#include <ql/ext/quotes/all.hpp>
-//#include <ql/ext/termstructures/all.hpp>
+#include <ql/ext/termstructures/all.hpp>

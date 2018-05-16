@@ -229,6 +229,8 @@ public:
 	std::vector<Real> domesticNominals() { updateDomLegFlows(); return nominalsDom_; }
 	std::vector<Real> foreignNominals() { updateForLegFlows(); return nominalsFor_; }
 	
+	bool payDom() { return (payer_[0] == +1 ? false : true); }
+	
 	void setForeignSpread(std::vector<Rate> spreads) { spreadsFor_ = spreads; updateForLegFlows(); };
 	
 	Real inCcyDomLegNPV() {

@@ -26,11 +26,11 @@
 
 #include <ql/termstructures/yield/ratehelpers.hpp>
 
-#include <qle/instruments/tenorbasisswap.hpp>
+#include <ql/ext/instruments/tenorbasisswap.hpp>
 
 using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Rate helper for bootstrapping using Libor tenor basis swaps
 /*! \ingroup termstructures
@@ -41,7 +41,7 @@ public:
                          const boost::shared_ptr<IborIndex> shortIndex, const Period& shortPayTenor = Period(),
                          const Handle<YieldTermStructure>& discountingCurve = Handle<YieldTermStructure>(),
                          bool spreadOnShort = true, bool includeSpread = false,
-                         SubPeriodsCoupon::Type type = SubPeriodsCoupon::Compounding);
+                         SubPeriodsCoupon_ext::Type type = SubPeriodsCoupon_ext::Compounding);
 
     //! \name RateHelper interface
     //@{
@@ -66,7 +66,7 @@ protected:
     Period shortPayTenor_;
     bool spreadOnShort_;
     bool includeSpread_;
-    SubPeriodsCoupon::Type type_;
+    SubPeriodsCoupon_ext::Type type_;
 
     boost::shared_ptr<TenorBasisSwap> swap_;
     RelinkableHandle<YieldTermStructure> termStructureHandle_;

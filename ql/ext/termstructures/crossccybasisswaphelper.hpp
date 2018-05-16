@@ -26,9 +26,9 @@
 
 #include <ql/termstructures/yield/ratehelpers.hpp>
 
-#include <qle/instruments/crossccybasisswap.hpp>
+#include <ql/ext/instruments/crossccybasisswap.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Cross Ccy Basis Swap Rate Helper
 /*! Rate helper for bootstrapping over cross currency basis swap spreads

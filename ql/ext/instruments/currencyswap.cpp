@@ -493,6 +493,9 @@ void ResetableCrossCurrencySwap::updateForLegFlows() const {
 			new SimpleCashFlow(nominalsFor_.back(), scheduleFor_.calendar().adjust(scheduleFor_.dates().back(), convention_)));
 
 	// floating leg #2
+	for (Leg::const_iterator i = legs_[2].begin(); i < legs_[2].end(); ++i)
+		const_cast<ResetableCrossCurrencySwap*>(this)->unregisterWith(*i);
+
 	legs_[2] = IborLeg(scheduleFor_, iborIndexFor_)
 		.withNotionals(nominalsFor_)
 		.withPaymentDayCounter(iborIndexFor_->dayCounter())
@@ -527,6 +530,9 @@ void ResetableCrossCurrencySwap::updateDomLegFlows() const  {
 			new SimpleCashFlow(nominalsDom_.back(), scheduleDom_.calendar().adjust(scheduleDom_.dates().back(), convention_)));
 
 	// floating leg - update
+	for (Leg::const_iterator i = legs_[0].begin(); i < legs_[0].end(); ++i)
+		const_cast<ResetableCrossCurrencySwap*>(this)->unregisterWith(*i) ;
+
 	legs_[0] = IborLeg(scheduleDom_, iborIndexDom_)
 		.withNotionals(nominalsDom_)
 		.withPaymentDayCounter(iborIndexDom_->dayCounter())

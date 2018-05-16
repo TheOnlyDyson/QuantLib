@@ -17,13 +17,13 @@
 */
 
 
-#include <qle/termstructures/crossccybasisswaphelper.hpp>
-#include <qle/pricingengines/crossccyswapengine.hpp>
+#include <ql/ext/termstructures/crossccybasisswaphelper.hpp>
+#include <ql/ext/pricingengines/crossccyswapengine.hpp>
 
 #ifdef QL_USE_INDEXED_COUPON
 #include <ql/cashflows/floatingratecoupon.hpp>
 #endif
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}

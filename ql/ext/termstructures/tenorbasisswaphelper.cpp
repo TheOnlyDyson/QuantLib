@@ -19,9 +19,9 @@
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/cashflows/floatingratecoupon.hpp>
 
-#include <qle/termstructures/tenorbasisswaphelper.hpp>
+#include <ql/ext/termstructures/tenorbasisswaphelper.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}
@@ -31,7 +31,7 @@ TenorBasisSwapHelper::TenorBasisSwapHelper(Handle<Quote> spread, const Period& s
                                            const boost::shared_ptr<IborIndex> longIndex,
                                            const boost::shared_ptr<IborIndex> shortIndex, const Period& shortPayTenor,
                                            const Handle<YieldTermStructure>& discountingCurve, bool spreadOnShort,
-                                           bool includeSpread, SubPeriodsCoupon::Type type)
+                                           bool includeSpread, SubPeriodsCoupon_ext::Type type)
     : RelativeDateRateHelper(spread), swapTenor_(swapTenor), longIndex_(longIndex), shortIndex_(shortIndex),
       spreadOnShort_(spreadOnShort), includeSpread_(includeSpread), type_(type), discountHandle_(discountingCurve) {
 

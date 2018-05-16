@@ -28,7 +28,7 @@
 
 using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Basis Two Swap Helper
 /*! Rate helper for bootstrapping using Libor tenor basis as the
