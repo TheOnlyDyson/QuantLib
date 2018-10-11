@@ -471,8 +471,8 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 
 	legs_[3].resize(scheduleFor_.size());
 
-	updateDomLegFlows();
 	updateForLegFlows();
+	updateDomLegFlows();
 	}
 
 /* foreign leg #2 #3 */

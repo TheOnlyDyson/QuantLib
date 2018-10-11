@@ -214,7 +214,7 @@ public:
 	void setupArguments(PricingEngine::arguments* args) const;
 	void fetchResults(const PricingEngine::results*) const;
 
-	void performCalculations() const { updateDomLegFlows(); updateForLegFlows(); CurrencySwap::performCalculations(); }
+	void performCalculations() const { updateForLegFlows(); updateDomLegFlows(); CurrencySwap::performCalculations(); }
 
 	void setFxForecast(bool forecast) { forecastFxToday_ = forecast; update(); }
 	bool forecastFxToday() { return forecastFxToday_; }
