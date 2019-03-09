@@ -298,7 +298,7 @@ class ResetableCrossCurrencySwap::arguments : public CurrencySwap::arguments {
 public:
 	std::vector<Rate> spreadsFor;
 	std::vector<Rate> spreadsDom;
-	void validate() const;
+	//void validate() const;
 };
 
 class ResetableCrossCurrencySwap::results : public CurrencySwap::results {

@@ -438,7 +438,7 @@ int main(int, char* []) {
 		std::vector<Rate> spreads1(1,0.0);
 		std::vector<Rate> spreads2(1, -0.01);
 
-		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.07)); 
+		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.08)); 
 		RelinkableHandle<Quote> fxHandle(fxQuote); 
 		std::string name("ECB");
 
@@ -452,7 +452,7 @@ int main(int, char* []) {
 
 		ResetableCrossCurrencySwap xccy(payDom, ccyDom, nominalDomInitial, floatSchedule_3M,
 			liborIndex_3M, spreads1, ccyFor, nominalsFor, floatSchedule_3M,
-			euriborIndex_3M, spreads2, fxIndexPtr, Following);
+			euriborIndex_3M, spreads2, fxIndexPtr, true, false, Following);
 
 		boost::shared_ptr<PricingEngine> xcSwapEngine(
 			new DiscountingCurrencySwapEngine(discountingTermStructure, discountingTermStructure, 

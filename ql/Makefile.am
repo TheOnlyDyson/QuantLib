@@ -3,6 +3,7 @@ SUBDIRS = \
     cashflows \
     currencies \
     experimental \
+	ext \
     indexes \
     instruments \
     legacy \
@@ -84,6 +85,7 @@ libQuantLib_la_LIBADD = \
     cashflows/libCashFlows.la \
     currencies/libCurrencies.la \
     experimental/libExperimental.la \
+    ext/libExt.la \
     indexes/libIndexes.la \
     instruments/libInstruments.la \
     legacy/libLegacy.la \
