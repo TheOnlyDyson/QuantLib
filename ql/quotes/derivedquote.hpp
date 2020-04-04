@@ -44,6 +44,7 @@ namespace QuantLib {
         //@{
         Real value() const;
         bool isValid() const;
+		void reset();
         //@}
         //! \name Observer interface
         //@{
@@ -72,6 +73,12 @@ namespace QuantLib {
     template <class UnaryFunction>
     inline bool DerivedQuote<UnaryFunction>::isValid() const {
         return !element_.empty() && element_->isValid();
+    }
+	
+    template <class UnaryFunction>
+    inline void DerivedQuote<UnaryFunction>::reset() {
+        if ( !element_.empty() )
+            element_->reset();
     }
 
     template <class UnaryFunction>

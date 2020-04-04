@@ -40,7 +40,8 @@ namespace QuantLib {
                       // exogenous discounting curve
                       const Handle<YieldTermStructure>& discountingCurve
                                             = Handle<YieldTermStructure>(),
-			          const int paymentLag = 0 /* +AFR */ 
+			          const int paymentLag = 0, /* +AFR */ 
+					  const Spread overnightSpread = 0.0 /* +AFR */ 
 			          );
         //! \name RateHelper interface
         //@{
@@ -62,6 +63,7 @@ namespace QuantLib {
 		int paymentLag_;
         Period tenor_;
         boost::shared_ptr<OvernightIndex> overnightIndex_;
+		Spread overnightSpread_;
 
         boost::shared_ptr<OvernightIndexedSwap> swap_;
         RelinkableHandle<YieldTermStructure> termStructureHandle_;

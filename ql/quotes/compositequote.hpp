@@ -51,6 +51,7 @@ namespace QuantLib {
         //@{
         Real value() const;
         bool isValid() const;
+		void reset();
         //@}
         //! \name Observer interface
         //@{
@@ -84,6 +85,14 @@ namespace QuantLib {
     inline bool CompositeQuote<BinaryFunction>::isValid() const {
         return !element1_.empty()    && !element2_.empty() &&
                 element1_->isValid() &&  element2_->isValid();
+    }
+
+    template <class BinaryFunction>
+    inline void CompositeQuote<BinaryFunction>::reset() {
+        if ( !element1_.empty() )
+            element1_->reset();
+		if ( !element2_.empty() )  
+			element2_->reset();
     }
 
     template <class BinaryFunction>
