@@ -435,22 +435,16 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	  nominalsFor_(nominalsFor), nominalsDom_(scheduleDom.size()-1, nominalDomInitial),
 	  forecastFxToday_(forecastFxToday), fixedNominalDomInitial_(fixedNominalDomInitial) {
 
-	if (paymentConvention)
-		convention_ = *paymentConvention;
-	else
-		convention_ = scheduleDom.businessDayConvention();
-
 	if (nominalsFor_.size() < (scheduleFor_.size() - 1) && nominalsFor_.size() == 1) {
 		nominalsFor_.resize(scheduleFor_.size() - 1);
 		std::fill(nominalsFor_.begin(), nominalsFor_.end(), nominalsFor[0]);
 	}
 
-	registerWith(fxIndex);
-	registerWith(iborIndexDom);
-    registerWith(iborIndexFor);
+	if (paymentConvention)
+		convention_ = *paymentConvention;
+	else
+		convention_ = scheduleDom.businessDayConvention();
 
-	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
-	
 	// floating leg 1
 	currency_[0] = ccyDom;
 	payer_[0] = (payDom ? -1 : +1);
@@ -471,6 +465,61 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 
 	legs_[3].resize(scheduleFor_.size());
 
+	init();
+	
+	}
+	
+ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
+	const boost::shared_ptr<IborIndex>& iborIndexDom, Spread spreadDom,
+	const Currency& ccyFor, Real nominalFor, const Schedule& scheduleFor,
+	const boost::shared_ptr<IborIndex>& iborIndexFor, Spread spreadFor,
+	const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday, bool fixedNominalDomInitial,
+	boost::optional<BusinessDayConvention> paymentConvention)
+	: CurrencySwap(4), scheduleFor_(scheduleFor), scheduleDom_(scheduleDom), 
+	  fxIndex_(fxIndex), iborIndexDom_(iborIndexDom), iborIndexFor_(iborIndexFor),
+	  spreadsFor_(scheduleFor.size() - 1, spreadFor), 
+	  spreadsDom_(scheduleDom.size() - 1, spreadDom),
+	  nominalsFor_(scheduleFor.size()-1, nominalFor), 
+	  nominalsDom_(scheduleDom.size()-1, nominalDomInitial),
+	  forecastFxToday_(forecastFxToday), fixedNominalDomInitial_(fixedNominalDomInitial) {
+
+	if (paymentConvention)
+		convention_ = *paymentConvention;
+	else
+		convention_ = scheduleDom.businessDayConvention();
+
+	// floating leg 1
+	currency_[0] = ccyDom;
+	payer_[0] = (payDom ? -1 : +1);
+
+	// add initial, interim and final notional flows
+	currency_[1] = ccyDom;
+	payer_[1] = payer_[0];
+	
+	legs_[1].resize(scheduleDom_.size());
+	
+	// floating leg 2
+	currency_[2] = ccyFor;
+	payer_[2] = (payDom ? +1 : -1);
+	
+	// add initial, interim and final notional flows
+	currency_[3] = ccyFor;
+	payer_[3] = payer_[2];
+
+	legs_[3].resize(scheduleFor_.size());
+
+	init();
+	
+	}
+	
+void ResetableCrossCurrencySwap::init() {
+
+	registerWith(fxIndex_);
+	registerWith(iborIndexDom_);
+    registerWith(iborIndexFor_);
+
+	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
+	
 	updateForLegFlows();
 	updateDomLegFlows();
 	}

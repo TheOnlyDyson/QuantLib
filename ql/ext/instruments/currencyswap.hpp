@@ -210,6 +210,12 @@ public:
 		const boost::shared_ptr<IborIndex>& iborIndexFor, std::vector<Rate> spreadsFor,
 		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
+	ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
+		const boost::shared_ptr<IborIndex>& iborIndexDom, Spread spreadDom, const Currency& ccyFor,
+		Real nominalFor, const Schedule& scheduleFor,
+		const boost::shared_ptr<IborIndex>& iborIndexFor, Spread spreadFor,
+		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
+		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
 
 	void setupArguments(PricingEngine::arguments* args) const;
 	void fetchResults(const PricingEngine::results*) const;
@@ -257,18 +263,25 @@ public:
 		calculate();
 		return legNPV_[2] + legNPV_[3];
 	}
-	std::vector<Rate> fairForSpread() {
+	std::vector<Rate> fairForSpreads() {
 		calculate();
 		QL_REQUIRE(!fairForSpread_.empty(), "Fair foreign leg spread is not available");
 		return fairForSpread_;
 	}
-	std::vector<Rate> fairDomSpread() {
+	std::vector<Rate> fairDomSpreads() {
 		calculate();
 		QL_REQUIRE(!fairDomSpread_.empty(), "Fair domestic leg spread is not available");
 		return fairDomSpread_;
 	}
+	Spread fairForSpread() {
+		return fairForSpreads()[0];
+	}
+	Spread fairDomSpread() {
+		return fairDomSpreads()[0];
+	}
 
 private:
+	void init();
 	void updateForLegFlows() const; // bool hasUpdateForeignFlow_ = false;
 	void updateDomLegFlows() const; // bool hasUpdateDomesticFlow_ = false;
 
