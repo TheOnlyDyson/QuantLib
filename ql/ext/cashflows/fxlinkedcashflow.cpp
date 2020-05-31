@@ -16,18 +16,23 @@
  FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-#include <ql/ext/cashflows/fxlinkedcashflow.hpp>
 #include <ql/indexes/indexmanager.hpp>
+#include <ql/ext/cashflows/fxlinkedcashflow.hpp>
 
 namespace QuantLib {
 
-FXLinkedCashFlow::FXLinkedCashFlow(const Date& cashFlowDate, const Date& fxFixingDate, Real foreignAmount,
-                                   boost::shared_ptr<FxIndex> fxIndex, bool invertIndex)
-    : cashFlowDate_(cashFlowDate), fxFixingDate_(fxFixingDate), foreignAmount_(foreignAmount), fxIndex_(fxIndex),
-      invertIndex_(invertIndex) {}
+FXLinked::FXLinked(const Date& fxFixingDate, Real foreignAmount, boost::shared_ptr<FxIndex> fxIndex, bool invertIndex)
+    : fxFixingDate_(fxFixingDate), foreignAmount_(foreignAmount), fxIndex_(fxIndex), invertIndex_(invertIndex) {}
 
-Real FXLinkedCashFlow::fxRate() const {
+Real FXLinked::fxRate() const {
     Real fixing = fxIndex_->fixing(fxFixingDate_);
     return invertIndex_ ? 1.0 / fixing : fixing;
 }
+
+FXLinkedCashFlow::FXLinkedCashFlow(const Date& cashFlowDate, const Date& fxFixingDate, Real foreignAmount,
+                                   boost::shared_ptr<FxIndex> fxIndex, bool invertIndex)
+    : FXLinked(fxFixingDate, foreignAmount, fxIndex, invertIndex), cashFlowDate_(cashFlowDate) {
+    registerWith(FXLinked::fxIndex());
 }
+
+} // namespace QuantExt

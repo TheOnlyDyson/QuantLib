@@ -16,7 +16,7 @@
  FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-/*! \file ql/ext/cashflows/fxlinkedcashflow.hpp
+/*! \file qle/cashflows/fxlinkedcashflow.hpp
     \brief An FX linked cashflow
 
         \ingroup cashflows
@@ -27,14 +27,30 @@
 
 #include <ql/cashflow.hpp>
 #include <ql/handle.hpp>
+#include <ql/patterns/visitor.hpp>
 #include <ql/quote.hpp>
 #include <ql/time/date.hpp>
-#include <ql/patterns/visitor.hpp>
 #include <ql/ext/indexes/fxindex.hpp>
 
-
-
 namespace QuantLib {
+//using namespace QuantLib;
+
+//! Base class for FX Linked cashflows
+class FXLinked {
+public:
+    FXLinked(const Date& fixingDate, Real foreignAmount, boost::shared_ptr<FxIndex> fxIndex, bool invertIndex = false);
+    Date fxFixingDate() const { return fxFixingDate_; }
+    Real foreignAmount() const { return foreignAmount_; }
+    const boost::shared_ptr<FxIndex>& fxIndex() const { return fxIndex_; }
+    bool invertFxIndex() const { return invertIndex_; }
+    Real fxRate() const;
+
+private:
+    Date fxFixingDate_;
+    Real foreignAmount_;
+    boost::shared_ptr<FxIndex> fxIndex_;
+    bool invertIndex_;
+};
 
 //! FX Linked cash-flow
 /*!
@@ -60,7 +76,7 @@ namespace QuantLib {
 
      \ingroup cashflows
  */
-class FXLinkedCashFlow : public CashFlow {
+class FXLinkedCashFlow : public CashFlow, public FXLinked, public Observer {
 public:
     FXLinkedCashFlow(const Date& cashFlowDate, const Date& fixingDate, Real foreignAmount,
                      boost::shared_ptr<FxIndex> fxIndex, bool invertIndex = false);
@@ -68,27 +84,24 @@ public:
     //! \name CashFlow interface
     //@{
     Date date() const { return cashFlowDate_; }
-    Real amount() const { return foreignAmount_ * fxRate(); }
+    Real amount() const { return foreignAmount() * fxRate(); }
     //@}
-
-    Date fxFixingDate() const { return fxFixingDate_; }
-    const boost::shared_ptr<FxIndex>& index() const { return fxIndex_; }
-    bool invertIndex() const { return invertIndex_; }
 
     //! \name Visitability
     //@{
     void accept(AcyclicVisitor&);
     //@}
 
+    //! \name Observer interface
+    //@{
+    void update() { notifyObservers(); }
+    //@}
+
 private:
     Date cashFlowDate_;
-    Date fxFixingDate_;
-    Real foreignAmount_;
-    boost::shared_ptr<FxIndex> fxIndex_;
-    bool invertIndex_;
-
-    Real fxRate() const;
 };
+
+// inline definitions
 
 inline void FXLinkedCashFlow::accept(AcyclicVisitor& v) {
     Visitor<FXLinkedCashFlow>* v1 = dynamic_cast<Visitor<FXLinkedCashFlow>*>(&v);
@@ -97,8 +110,6 @@ inline void FXLinkedCashFlow::accept(AcyclicVisitor& v) {
     else
         CashFlow::accept(v);
 }
-
-typedef std::vector<boost::shared_ptr<FXLinkedCashFlow> > FxLeg;
-}
+} // namespace QuantExt
 
 #endif
