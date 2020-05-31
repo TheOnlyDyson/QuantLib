@@ -28,8 +28,6 @@
 #include <ql/instruments/swap.hpp>
 #include <ql/currency.hpp>
 
-
-
 namespace QuantLib {
 
 //! Cross currency swap
@@ -98,12 +96,14 @@ private:
     mutable std::vector<DiscountFactor> npvDateDiscounts_;
 };
 
+//! \ingroup instruments
 class CrossCcySwap::arguments : public Swap::arguments {
 public:
     std::vector<Currency> currencies;
     void validate() const;
 };
 
+//! \ingroup instruments
 class CrossCcySwap::results : public Swap::results {
 public:
     std::vector<Real> inCcyLegNPV;
@@ -112,6 +112,7 @@ public:
     void reset();
 };
 
+//! \ingroup instruments
 class CrossCcySwap::engine : public GenericEngine<CrossCcySwap::arguments, CrossCcySwap::results> {};
 }
 
