@@ -17,9 +17,9 @@
 */
 
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
-#include <qle/termstructures/subperiodsswaphelper.hpp>
+#include <ql/ext/termstructures/subperiodsswaphelper.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}
@@ -31,7 +31,7 @@ SubPeriodsSwapHelper::SubPeriodsSwapHelper(Handle<Quote> spread, const Period& s
                                            const boost::shared_ptr<IborIndex>& iborIndex,
                                            const DayCounter& floatDayCount,
                                            const Handle<YieldTermStructure>& discountingCurve,
-                                           SubPeriodsCoupon::Type type)
+                                           SubPeriodsCoupon_ext::Type type)
     : RelativeDateRateHelper(spread), iborIndex_(iborIndex), swapTenor_(swapTenor), fixedTenor_(fixedTenor),
       fixedCalendar_(fixedCalendar), fixedDayCount_(fixedDayCount), fixedConvention_(fixedConvention),
       floatPayTenor_(floatPayTenor), floatDayCount_(floatDayCount), type_(type), discountHandle_(discountingCurve) {

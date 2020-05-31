@@ -2,6 +2,7 @@
 /* Add the files to be included into Makefile.am instead. */
 
 #include <ql/ext/instruments/averageois.hpp>
+#include <ql/ext/instruments/crossccybasismtmresetswap.hpp>
 #include <ql/ext/instruments/crossccybasisswap.hpp>
 #include <ql/ext/instruments/crossccyswap.hpp>
 #include <ql/ext/instruments/currencyswap.hpp>

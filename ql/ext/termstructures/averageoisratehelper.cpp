@@ -16,10 +16,10 @@
  FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-#include <qle/termstructures/averageoisratehelper.hpp>
-#include <qle/instruments/makeaverageois.hpp>
+#include <ql/ext/termstructures/averageoisratehelper.hpp>
+#include <ql/ext/instruments/makeaverageois.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}

@@ -26,11 +26,11 @@
 
 #include <ql/termstructures/yield/ratehelpers.hpp>
 
-#include <qle/instruments/subperiodsswap.hpp>
+#include <ql/ext/instruments/subperiodsswap.hpp>
 
-using namespace QuantLib;
+//using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Rate helper for bootstrapping using Sub Periods Swaps
 /*! \ingroup termstructures
@@ -42,7 +42,7 @@ public:
                          BusinessDayConvention fixedConvention, const Period& floatPayTenor,
                          const boost::shared_ptr<IborIndex>& iborIndex, const DayCounter& floatDayCount,
                          const Handle<YieldTermStructure>& discountingCurve = Handle<YieldTermStructure>(),
-                         SubPeriodsCoupon::Type type = SubPeriodsCoupon::Compounding);
+                         SubPeriodsCoupon_ext::Type type = SubPeriodsCoupon_ext::Compounding);
 
     //! \name RateHelper interface
     //@{
@@ -71,7 +71,7 @@ private:
     BusinessDayConvention fixedConvention_;
     Period floatPayTenor_;
     DayCounter floatDayCount_;
-    SubPeriodsCoupon::Type type_;
+    SubPeriodsCoupon_ext::Type type_;
 
     RelinkableHandle<YieldTermStructure> termStructureHandle_;
     Handle<YieldTermStructure> discountHandle_;

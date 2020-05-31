@@ -66,6 +66,13 @@ public:
 		                          Date settlementDate = Date(), Date npvDate = Date());
 	DiscountingCurrencySwapEngine(const Handle<YieldTermStructure>& discountCurve1,
 								  const Handle<YieldTermStructure>& discountCurve2,
+								  const Currency& currency1,
+							      const Currency& currency2,
+		                          const Handle<Quote>& fxQuote2,
+								  boost::optional<bool> includeSettlementDateFlows = boost::none,
+								  Date settlementDate = Date(), Date npvDate = Date());
+	DiscountingCurrencySwapEngine(const Handle<YieldTermStructure>& discountCurve1,
+								  const Handle<YieldTermStructure>& discountCurve2,
 								  const FxIndex& fxIndex1,
 		                          const FxIndex& fxIndex2,
 								  const Currency& currency1,

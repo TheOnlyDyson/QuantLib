@@ -81,6 +81,36 @@ DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
 
 DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
 	const Handle<YieldTermStructure>& discountCurve1, const Handle<YieldTermStructure>& discountCurve2, 
+	const Currency & currency1, const Currency & currency2, const Handle<Quote>& fxQuote2,
+	boost::optional<bool> includeSettlementDateFlows, Date settlementDate, Date npvDate)
+	: npvCurrency_(currency1),
+	includeSettlementDateFlows_(includeSettlementDateFlows), settlementDate_(settlementDate), npvDate_(npvDate) {
+
+	QL_REQUIRE(discountCurves_.size() == currencies_.size(), "Number of "
+		"currencies does not match number of discount curves.");
+	QL_REQUIRE(fxQuotes_.size() == currencies_.size(), "Number of "
+		"currencies does not match number of FX quotes.");
+
+	discountCurves_.resize(2);
+	discountCurves_[0] = discountCurve1;
+	discountCurves_[1] = discountCurve2;
+	fxQuotes_.resize(2);
+	fxQuotes_[0] = Handle<Quote>( boost::shared_ptr<Quote>(&SimpleQuote(1.0)) );
+	fxQuotes_[1] = fxQuote2;
+	currencies_.resize(2);
+	currencies_[0] = currency1;
+	currencies_[1] = currency2;
+
+	spot_calendar_ = NullCalendar();
+
+	for (Size i = 0; i < discountCurves_.size(); i++) {
+		registerWith(discountCurves_[i]);
+		registerWith(fxQuotes_[i]);
+	}
+}
+
+DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
+	const Handle<YieldTermStructure>& discountCurve1, const Handle<YieldTermStructure>& discountCurve2, 
 	const FxIndex & fxIndex1, const FxIndex & fxIndex2, 
 	const Currency & currency1, const Currency & currency2, const Currency & npvCurrency, 
 	boost::optional<bool> includeSettlementDateFlows, Date settlementDate, Date npvDate)

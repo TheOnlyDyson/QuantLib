@@ -544,6 +544,7 @@
     <ClInclude Include="ql\ext\indexes\fxindex.hpp" />
     <ClInclude Include="ql\ext\instruments\all.hpp" />
     <ClInclude Include="ql\ext\instruments\averageois.hpp" />
+    <ClInclude Include="ql\ext\instruments\crossccybasismtmresetswap.hpp" />
     <ClInclude Include="ql\ext\instruments\crossccybasisswap.hpp" />
     <ClInclude Include="ql\ext\instruments\crossccyswap.hpp" />
     <ClInclude Include="ql\ext\instruments\currencyswap.hpp" />
@@ -559,8 +560,15 @@
     <ClInclude Include="ql\ext\pricingengines\discountingfxforwardengine.hpp" />
     <ClInclude Include="ql\ext\pricingengines\discountingswapenginemulticurve.hpp" />
     <ClInclude Include="ql\ext\pricingengines\oiccbasisswapengine.hpp" />
+    <ClInclude Include="ql\ext\termstructures\all.hpp" />
+    <ClInclude Include="ql\ext\termstructures\averageoisratehelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\basistwoswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\crossccybasisswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\oibasisswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\oiccbasisswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\subperiodsswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\tenorbasisswaphelper.hpp" />
     <ClInclude Include="ql\indexes\ibor\aonia.hpp" />
     <ClInclude Include="ql\indexes\ibor\bbsw.hpp" />
@@ -1857,6 +1865,7 @@
     <ClCompile Include="ql\ext\cashflows\subperiodscouponpricer.cpp" />
     <ClCompile Include="ql\ext\indexes\fxindex.cpp" />
     <ClCompile Include="ql\ext\instruments\averageois.cpp" />
+    <ClCompile Include="ql\ext\instruments\crossccybasismtmresetswap.cpp" />
     <ClCompile Include="ql\ext\instruments\crossccybasisswap.cpp" />
     <ClCompile Include="ql\ext\instruments\crossccyswap.cpp" />
     <ClCompile Include="ql\ext\instruments\currencyswap.cpp" />
@@ -1871,8 +1880,14 @@
     <ClCompile Include="ql\ext\pricingengines\discountingfxforwardengine.cpp" />
     <ClCompile Include="ql\ext\pricingengines\discountingswapenginemulticurve.cpp" />
     <ClCompile Include="ql\ext\pricingengines\oiccbasisswapengine.cpp" />
+    <ClCompile Include="ql\ext\termstructures\averageoisratehelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\basistwoswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\crossccybasisswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\oibasisswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\oiccbasisswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\subperiodsswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\tenorbasisswaphelper.cpp" />
     <ClCompile Include="ql\math\polynomialmathfunction.cpp" />
     <ClCompile Include="ql\math\pascaltriangle.cpp" />

@@ -16,8 +16,8 @@
  FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-#include <qle/termstructures/oiccbasisswaphelper.hpp>
-#include <qle/pricingengines/oiccbasisswapengine.hpp>
+#include <ql/ext/termstructures/oiccbasisswaphelper.hpp>
+#include <ql/ext/pricingengines/oiccbasisswapengine.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/currencies/europe.hpp>
 #include <iostream>
@@ -26,7 +26,7 @@ using boost::shared_ptr;
 
 using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}

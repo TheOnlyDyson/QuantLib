@@ -26,11 +26,11 @@
 
 #include <ql/termstructures/yield/ratehelpers.hpp>
 
-#include <qle/instruments/averageois.hpp>
+#include <ql/ext/instruments/averageois.hpp>
 
-using namespace QuantLib;
+//using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Average OIS Rate Helper
 /*! Rate helper to facilitate the usage of an AverageOIS instrument in

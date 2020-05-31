@@ -16,14 +16,14 @@
  FITNESS FOR A PARTICULAR PURPOSE. See the license for more details.
 */
 
-#include <qle/termstructures/oibasisswaphelper.hpp>
+#include <ql/ext/termstructures/oibasisswaphelper.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 
 using boost::shared_ptr;
 
-using namespace QuantLib;
+//using namespace QuantLib;
 
-namespace QuantExt {
+namespace QuantLib {
 
 namespace {
 void no_deletion(YieldTermStructure*) {}

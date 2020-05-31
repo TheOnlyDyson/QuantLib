@@ -26,9 +26,9 @@
 
 #include <ql/termstructures/yield/ratehelpers.hpp>
 #include <ql/instruments/overnightindexedswap.hpp>
-#include <qle/instruments/oibasisswap.hpp>
+#include <ql/ext/instruments/oibasisswap.hpp>
 
-namespace QuantExt {
+namespace QuantLib {
 
 //! Rate helper for bootstrapping over Overnight Indexed Basis Swap Spreads
 /*! \ingroup termstructures

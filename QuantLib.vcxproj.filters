@@ -4240,6 +4240,30 @@
     <ClInclude Include="ql\ext\termstructures\tenorbasisswaphelper.hpp">
       <Filter>ext\termstructures</Filter>
     </ClInclude>
+    <ClInclude Include="ql\ext\instruments\crossccybasismtmresetswap.hpp">
+      <Filter>ext\instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\averageoisratehelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\oibasisswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\oiccbasisswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\subperiodsswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\all.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -6834,6 +6858,27 @@
       <Filter>ext\termstructures</Filter>
     </ClCompile>
     <ClCompile Include="ql\ext\termstructures\tenorbasisswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\instruments\crossccybasismtmresetswap.cpp">
+      <Filter>ext\instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\averageoisratehelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\oibasisswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\oiccbasisswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\subperiodsswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.cpp">
       <Filter>ext\termstructures</Filter>
     </ClCompile>
   </ItemGroup>
