@@ -431,18 +431,17 @@ int main(int, char* []) {
 		bool payDom = true;
 		Currency ccyDom = USDCurrency();
 		Currency ccyFor = EURCurrency();
-		Real nominalDomInitial = 10700.;
-		std::vector<Real> nominalsFor(floatSchedule_3M.size()-1, 10000.) ;
+		Real nominalDomInitial = -1.0;
+		Real nominalFor = 10000.0;
 		boost::shared_ptr<IborIndex> liborIndex_3M(
 			new USDLibor(Period(Quarterly),forecastingTermStructure));
-		std::vector<Rate> spreads1(1,0.0);
-		std::vector<Rate> spreads2(1, -0.01);
+		Spread spreadDom = 0.0;
+		Spread spreadFor = 0.0;
 
 		boost::shared_ptr<SimpleQuote> fxQuote(new SimpleQuote(1.08)); 
 		RelinkableHandle<Quote> fxHandle(fxQuote); 
 		std::string name("ECB");
 
-		//FxIndex fxIndex(name, 2, EURCurrency(), USDCurrency(), TARGET(), fxHandle, forecastingTermStructure, forecastingTermStructure);
 		boost::shared_ptr<FxIndex> fxIndexPtr(new 
 			FxIndex(name, 2, ccyFor, ccyDom, TARGET(), fxHandle, 
 				forecastingTermStructure, forecastingTermStructure));
@@ -451,14 +450,22 @@ int main(int, char* []) {
 		discountingTermStructure.linkTo(depoSwapTermStructure);
 
 		ResetableCrossCurrencySwap xccy(payDom, ccyDom, nominalDomInitial, floatSchedule_3M,
-			liborIndex_3M, spreads1, ccyFor, nominalsFor, floatSchedule_3M,
-			euriborIndex_3M, spreads2, fxIndexPtr, true, false, Following);
+			liborIndex_3M, spreadFor, ccyFor, nominalFor, floatSchedule_3M,
+			euriborIndex_3M, spreadDom, fxIndexPtr, true, false, Following);
 
 		boost::shared_ptr<PricingEngine> xcSwapEngine(
 			new DiscountingCurrencySwapEngine(discountingTermStructure, discountingTermStructure, 
 				Handle<Quote>(boost::shared_ptr<Quote>(new SimpleQuote(1.0))), fxHandle, ccyDom,ccyFor,ccyDom,TARGET(),2));
 
 		xccy.setPricingEngine(xcSwapEngine);
+
+		CrossCcyBasisMtMResetSwap xccy_ore(nominalFor, ccyFor, floatSchedule_3M, euriborIndex_3M, spreadFor, ccyDom, floatSchedule_3M,
+			liborIndex_3M, 0.0, fxIndexPtr, false);
+
+		boost::shared_ptr<PricingEngine> engineOre = boost::make_shared<CrossCcySwapEngine>(
+			ccyDom, discountingTermStructure, ccyFor, discountingTermStructure, fxHandle);
+
+		xccy_ore.setPricingEngine(engineOre);
 
 		std::cout << "Resetable XCCY (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
@@ -468,21 +475,29 @@ int main(int, char* []) {
 		std::cout << "Foreign BPS in forCcy = "
 			<< std::fixed << std::setprecision(2) << xccy.inCcyForLegBPS()
 			<< std::endl;
+		std::cout << "Foreign fair spread = "
+			<< std::fixed << std::setprecision(2) << xccy.fairForSpread()
+			<< std::endl;
 
-		for (Size i = 0; i < spreads2.size(); i++)
-			std::cout << "#" << i << " fair spread = "
-				<< std::fixed << std::setprecision(6) << xccy.fairForSpread()[i]
-				<< std::endl;
-
-		//std::cout << "Resetable XCCY (end)" << std::endl;
+		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
+			<< std::endl;
+		std::cout << "Foreign BPS in forCcy = "
+			<< std::fixed << std::setprecision(2) << xccy_ore.inCcyLegBPS(2)
+			<< std::endl;
+		std::cout << "Foreign fair spread = "
+			<< std::fixed << std::setprecision(2) << xccy_ore.fairForeignSpread()
+			<< std::endl;
 
 		fxQuote->setValue(1.1);
 
 		std::cout << "FX = " << fxHandle->value() << std::endl;
 		std::cout << "NPV = "
-			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
 			<< std::endl;
-		std::cout << "Resetable XCCY (end)" << std::endl;
+		std::cout << "Resetable XCCY ORE (end)" << std::endl;
 
 		Settings::instance().evaluationDate() = todaysDate+2;
 
