@@ -428,6 +428,10 @@ int main(int, char* []) {
 		TenorBasisSwap tenorSwap2(settlementDate, nominal, Period(Annual),false, euriborIndex_6M, 0.0, euriborIndex_3M, 0.0, Period(Quarterly), DateGeneration::Backward,false,SubPeriodsCoupon_ext::Compounding);
 		///* AFR*/
 
+		boost::shared_ptr<YieldTermStructure> plainCurve(
+			boost::make_shared<FlatForward>(0, TARGET(), 0.02, Actual365Fixed())
+		);
+
 		bool payDom = true;
 		Currency ccyDom = USDCurrency();
 		Currency ccyFor = EURCurrency();
@@ -446,8 +450,11 @@ int main(int, char* []) {
 			FxIndex(name, 2, ccyFor, ccyDom, TARGET(), fxHandle, 
 				forecastingTermStructure, forecastingTermStructure));
 
-		forecastingTermStructure.linkTo(depoSwapTermStructure);
-		discountingTermStructure.linkTo(depoSwapTermStructure);
+		//forecastingTermStructure.linkTo(depoSwapTermStructure);
+		//discountingTermStructure.linkTo(depoSwapTermStructure);
+
+		forecastingTermStructure.linkTo(plainCurve);
+		discountingTermStructure.linkTo(plainCurve);
 
 		ResetableCrossCurrencySwap xccy(payDom, ccyDom, nominalDomInitial, floatSchedule_3M,
 			liborIndex_3M, spreadFor, ccyFor, nominalFor, floatSchedule_3M,
@@ -478,6 +485,7 @@ int main(int, char* []) {
 		std::cout << "Foreign fair spread = "
 			<< std::fixed << std::setprecision(2) << xccy.fairForSpread()
 			<< std::endl;
+		std::cout << "Resetable XCCY (end)" << std::endl;
 
 		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
@@ -490,16 +498,39 @@ int main(int, char* []) {
 		std::cout << "Foreign fair spread = "
 			<< std::fixed << std::setprecision(2) << xccy_ore.fairForeignSpread()
 			<< std::endl;
+		std::cout << "Resetable XCCY ORE (end)" << std::endl;
 
-		fxQuote->setValue(1.1);
+		//Settings::instance().evaluationDate() = todaysDate + 5;
 
+		std::cout << "Resetable XCCY (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY (end)" << std::endl;
+
+		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
 		std::cout << "NPV = "
 			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
 			<< std::endl;
 		std::cout << "Resetable XCCY ORE (end)" << std::endl;
 
-		Settings::instance().evaluationDate() = todaysDate+2;
+		fxQuote->setValue(1.1);
+
+		std::cout << "Resetable XCCY (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY (end)" << std::endl;
+
+		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY ORE (end)" << std::endl;		
 
 		///* AFR*/
 
