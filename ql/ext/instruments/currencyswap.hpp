@@ -208,19 +208,24 @@ public:
 		const boost::shared_ptr<IborIndex>& iborIndexDom, std::vector<Rate> spreadsDom, const Currency& ccyFor,
 		std::vector<Real> nominalsFor, const Schedule& scheduleFor,
 		const boost::shared_ptr<IborIndex>& iborIndexFor, std::vector<Rate> spreadsFor,
-		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
+		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = false,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
 	ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
 		const boost::shared_ptr<IborIndex>& iborIndexDom, Spread spreadDom, const Currency& ccyFor,
 		Real nominalFor, const Schedule& scheduleFor,
 		const boost::shared_ptr<IborIndex>& iborIndexFor, Spread spreadFor,
-		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = true,
+		const boost::shared_ptr<FxIndex>& fxIndex, bool forecastFxToday = false, bool fixedNominalDomInitial = false,
 		boost::optional<BusinessDayConvention> paymentConvention = boost::none);
+	ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, const Schedule& scheduleDom,
+		const boost::shared_ptr<IborIndex>& iborIndexDom, const Currency& ccyFor,
+		Real nominalFor, const Schedule& scheduleFor,
+		const boost::shared_ptr<IborIndex>& iborIndexFor, Spread spreadFor,
+		const boost::shared_ptr<FxIndex>& fxIndex);
 
 	void setupArguments(PricingEngine::arguments* args) const;
 	void fetchResults(const PricingEngine::results*) const;
 
-	void performCalculations() const { updateForLegFlows(); updateDomLegFlows(); CurrencySwap::performCalculations(); }
+	void performCalculations() const { /*updateForLegFlows();*/ updateDomLegFlows(); CurrencySwap::performCalculations(); }
 
 	void setFxForecast(bool forecast) { forecastFxToday_ = forecast; update(); }
 	bool forecastFxToday() { return forecastFxToday_; }

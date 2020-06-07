@@ -450,6 +450,21 @@ int main(int, char* []) {
 			FxIndex(name, 2, ccyFor, ccyDom, TARGET(), fxHandle, 
 				forecastingTermStructure, forecastingTermStructure));
 
+		for (int i = -20; i < 20; i++) {
+			try {
+				fxIndexPtr->addFixing(TARGET().advance(todaysDate, i, Days, Preceding), 1.1);
+			}
+			catch (...) {}
+			try {
+				liborIndex_3M->addFixing(TARGET().advance(todaysDate, i, Days, Preceding), 0.02);
+			}
+			catch (...) {}
+			try {
+				euriborIndex_3M->addFixing(TARGET().advance(todaysDate, i, Days, Preceding), 0.02);
+			}
+			catch (...) {}
+		}
+
 		//forecastingTermStructure.linkTo(depoSwapTermStructure);
 		//discountingTermStructure.linkTo(depoSwapTermStructure);
 
@@ -485,7 +500,7 @@ int main(int, char* []) {
 		std::cout << "Foreign fair spread = "
 			<< std::fixed << std::setprecision(2) << xccy.fairForSpread()
 			<< std::endl;
-		std::cout << "Resetable XCCY (end)" << std::endl;
+		std::cout << "Resetable XCCY (end)\n" << std::endl;
 
 		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
@@ -498,39 +513,59 @@ int main(int, char* []) {
 		std::cout << "Foreign fair spread = "
 			<< std::fixed << std::setprecision(2) << xccy_ore.fairForeignSpread()
 			<< std::endl;
-		std::cout << "Resetable XCCY ORE (end)" << std::endl;
+		std::cout << "Resetable XCCY ORE (end)\n" << std::endl;
 
-		//Settings::instance().evaluationDate() = todaysDate + 5;
-
-		std::cout << "Resetable XCCY (begin)" << std::endl;
-		std::cout << "FX = " << fxHandle->value() << std::endl;
-		std::cout << "NPV = "
-			<< std::fixed << std::setprecision(2) << xccy.NPV()
-			<< std::endl;
-		std::cout << "Resetable XCCY (end)" << std::endl;
-
-		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
-		std::cout << "FX = " << fxHandle->value() << std::endl;
-		std::cout << "NPV = "
-			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
-			<< std::endl;
-		std::cout << "Resetable XCCY ORE (end)" << std::endl;
-
-		fxQuote->setValue(1.1);
+		Settings::instance().evaluationDate() = TARGET().adjust(todaysDate + 5, Following);
 
 		std::cout << "Resetable XCCY (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
 		std::cout << "NPV = "
 			<< std::fixed << std::setprecision(2) << xccy.NPV()
 			<< std::endl;
-		std::cout << "Resetable XCCY (end)" << std::endl;
+		std::cout << "Resetable XCCY (end)\n" << std::endl;
 
 		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
 		std::cout << "FX = " << fxHandle->value() << std::endl;
 		std::cout << "NPV = "
 			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
 			<< std::endl;
-		std::cout << "Resetable XCCY ORE (end)" << std::endl;		
+		std::cout << "Resetable XCCY ORE (end)\n" << std::endl;
+
+		fxQuote->setValue(1.2);
+
+		std::cout << "Resetable XCCY (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY (end)\n" << std::endl;
+
+		std::cout << "Resetable XCCY ORE (begin)" << std::endl;
+		std::cout << "FX = " << fxHandle->value() << std::endl;
+		std::cout << "NPV = "
+			<< std::fixed << std::setprecision(2) << xccy_ore.NPV()
+			<< std::endl;
+		std::cout << "Resetable XCCY ORE (end)\n" << std::endl;		
+
+		/* Bootstrap */
+
+		std::vector<boost::shared_ptr<RateHelper> > helpers(1);
+		boost::shared_ptr<SimpleQuote>  spreadQuote( boost::make_shared<SimpleQuote>(0.0) );
+
+		boost::shared_ptr<ResetableCrossCurrencySwapHelper> helper;
+		helper.reset(new ResetableCrossCurrencySwapHelper(
+			Handle<Quote>(spreadQuote), Handle<Quote>(fxQuote), 2, TARGET(),
+			1 * Years, Following, euriborIndex_3M, liborIndex_3M, Handle<YieldTermStructure>(),
+			discountingTermStructure));
+
+		helpers[0] = helper;
+
+		// Build yield curve referencing the helper
+		Handle<YieldTermStructure> bootstrap_crv( boost::make_shared<PiecewiseYieldCurve<Discount, LogLinear> >(0, NullCalendar(), helpers, Actual365Fixed()) );
+
+		std::cout << "discount factor = "
+			<< std::fixed << std::setprecision(8) << bootstrap_crv->discount(1.0)
+			<< std::endl;
 
 		///* AFR*/
 

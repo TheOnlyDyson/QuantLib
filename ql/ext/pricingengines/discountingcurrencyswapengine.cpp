@@ -95,7 +95,8 @@ DiscountingCurrencySwapEngine::DiscountingCurrencySwapEngine(
 	discountCurves_[0] = discountCurve1;
 	discountCurves_[1] = discountCurve2;
 	fxQuotes_.resize(2);
-	fxQuotes_[0] = Handle<Quote>( boost::shared_ptr<Quote>(&SimpleQuote(1.0)) );
+	boost::shared_ptr<SimpleQuote> fxQuote1 = boost::shared_ptr<SimpleQuote>( new SimpleQuote(1.0) );
+	fxQuotes_[0] = Handle<Quote>( fxQuote1 );
 	fxQuotes_[1] = fxQuote2;
 	currencies_.resize(2);
 	currencies_[0] = currency1;

@@ -452,9 +452,7 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	// add initial, interim and final notional flows
 	currency_[1] = ccyDom;
 	payer_[1] = payer_[0];
-	
-	legs_[1].resize(scheduleDom_.size());
-	
+		
 	// floating leg 2
 	currency_[2] = ccyFor;
 	payer_[2] = (payDom ? +1 : -1);
@@ -463,13 +461,12 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	currency_[3] = ccyFor;
 	payer_[3] = payer_[2];
 
-	legs_[3].resize(scheduleFor_.size());
-
 	init();
 	
 	}
 	
-ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
+ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(
+	bool payDom, const Currency& ccyDom, Real nominalDomInitial, const Schedule& scheduleDom,
 	const boost::shared_ptr<IborIndex>& iborIndexDom, Spread spreadDom,
 	const Currency& ccyFor, Real nominalFor, const Schedule& scheduleFor,
 	const boost::shared_ptr<IborIndex>& iborIndexFor, Spread spreadFor,
@@ -495,22 +492,25 @@ ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(bool payDom, const Curren
 	// add initial, interim and final notional flows
 	currency_[1] = ccyDom;
 	payer_[1] = payer_[0];
-	
-	legs_[1].resize(scheduleDom_.size());
-	
+
 	// floating leg 2
 	currency_[2] = ccyFor;
 	payer_[2] = (payDom ? +1 : -1);
-	
+
 	// add initial, interim and final notional flows
 	currency_[3] = ccyFor;
 	payer_[3] = payer_[2];
 
-	legs_[3].resize(scheduleFor_.size());
-
 	init();
 	
 	}
+
+ResetableCrossCurrencySwap::ResetableCrossCurrencySwap(
+	bool payDom, const Currency & ccyDom, const Schedule & scheduleDom, const boost::shared_ptr<IborIndex>& iborIndexDom, 
+	const Currency & ccyFor, Real nominalFor, const Schedule & scheduleFor, const boost::shared_ptr<IborIndex>& iborIndexFor, 
+	Spread spreadFor, const boost::shared_ptr<FxIndex>& fxIndex)
+	: ResetableCrossCurrencySwap(payDom, ccyDom, -1.0, scheduleDom, iborIndexDom, 0.0,
+		ccyFor, nominalFor, scheduleFor, iborIndexFor,spreadFor, fxIndex) {}
 	
 void ResetableCrossCurrencySwap::init() {
 
@@ -521,13 +521,15 @@ void ResetableCrossCurrencySwap::init() {
 	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
 	
 	updateForLegFlows();
-	updateDomLegFlows();
+	//updateDomLegFlows();
 	
 	}
 
 /* foreign leg #2 #3 */
 void ResetableCrossCurrencySwap::updateForLegFlows() const {
 	
+	legs_[3].resize(scheduleFor_.size());
+
 	// add initial, interim and final notional flows on leg #3
 	legs_[3].front() = boost::shared_ptr<CashFlow>(
 		new SimpleCashFlow(-nominalsFor_[0], scheduleFor_.calendar().adjust(scheduleFor_.dates().front(), convention_)));
@@ -559,6 +561,8 @@ void ResetableCrossCurrencySwap::updateForLegFlows() const {
 /* domestic leg #0 #1 */
 void ResetableCrossCurrencySwap::updateDomLegFlows() const  {
 
+	legs_[1].resize(scheduleDom_.size());
+
 	try {
 		// update nominals
 		if (nominalsDom_[0] < 0.0 || !fixedNominalDomInitial_)
@@ -567,7 +571,8 @@ void ResetableCrossCurrencySwap::updateDomLegFlows() const  {
 		for (Size i = 1; i < nominalsDom_.size(); ++i)
 			nominalsDom_[i] = nominalsFor_[i] * fxIndex_->fixing(fxIndex_->fixingDate(scheduleDom_[i]), forecastFxToday_);
 	} catch (...) {
-		std::fill(nominalsDom_.begin(), nominalsDom_.end(), 1.0);
+		try { QL_FAIL("Domestic leg nominals could not be set - set to 1."); }
+		catch (...) { std::fill(nominalsDom_.begin(), nominalsDom_.end(), 1.0); }
 	}
 
 	legs_[1].front() = boost::shared_ptr<CashFlow>(
