@@ -550,7 +550,7 @@ int main(int, char* []) {
 		/* Bootstrap */
 
 		std::vector<boost::shared_ptr<RateHelper> > helpers(1);
-		boost::shared_ptr<SimpleQuote>  spreadQuote( boost::make_shared<SimpleQuote>(0.0) );
+		boost::shared_ptr<SimpleQuote>  spreadQuote( boost::make_shared<SimpleQuote>(0.01) );
 
 		boost::shared_ptr<ResetableCrossCurrencySwapHelper> helper;
 		helper.reset(new ResetableCrossCurrencySwapHelper(

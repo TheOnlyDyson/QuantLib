@@ -521,7 +521,7 @@ void ResetableCrossCurrencySwap::init() {
 	QL_REQUIRE(scheduleFor_.size() == scheduleDom_.size(), "Schedules are not aligned. Same payment frequency required.");
 	
 	updateForLegFlows();
-	//updateDomLegFlows();
+	updateDomLegFlows();
 	
 	}
 
