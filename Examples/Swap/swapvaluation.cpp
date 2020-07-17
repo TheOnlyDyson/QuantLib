@@ -304,23 +304,24 @@ int main(int, char* []) {
 
         // A depo-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoSwapInstruments;
-        depoSwapInstruments.push_back(d1w);
-        depoSwapInstruments.push_back(d1m);
-        depoSwapInstruments.push_back(d3m);
+        //depoSwapInstruments.push_back(d1w);
+        //depoSwapInstruments.push_back(d1m);
+        //depoSwapInstruments.push_back(d3m);
         depoSwapInstruments.push_back(d6m);
-        depoSwapInstruments.push_back(d9m);
+        //depoSwapInstruments.push_back(d9m);
         depoSwapInstruments.push_back(d1y);
-        depoSwapInstruments.push_back(s2y);
-        depoSwapInstruments.push_back(s3y);
-        depoSwapInstruments.push_back(s5y);
-        depoSwapInstruments.push_back(s10y);
-        depoSwapInstruments.push_back(s15y);
-        boost::shared_ptr<YieldTermStructure> depoSwapTermStructure(
-            new PiecewiseYieldCurve<Discount,LogLinear>(
+        //depoSwapInstruments.push_back(s2y);
+        //depoSwapInstruments.push_back(s3y);
+        //epoSwapInstruments.push_back(s5y);
+        //depoSwapInstruments.push_back(s10y);
+        //depoSwapInstruments.push_back(s15y);
+        boost::shared_ptr<PiecewiseYieldCurve<ZeroYield, Linear>> depoSwapTermStructure(
+            new PiecewiseYieldCurve<ZeroYield,Linear>(
                                           settlementDate, depoSwapInstruments,
                                           termStructureDayCounter,
                                           tolerance));
 
+		depoSwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true);
 
         // A depo-futures-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoFutSwapInstruments;
@@ -347,29 +348,60 @@ int main(int, char* []) {
 
         // A depo-FRA-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoFRASwapInstruments;
-        depoFRASwapInstruments.push_back(d1w);
-        depoFRASwapInstruments.push_back(d1m);
-        depoFRASwapInstruments.push_back(d3m);
-        depoFRASwapInstruments.push_back(fra3x6);
-        depoFRASwapInstruments.push_back(fra6x9);
+        //depoFRASwapInstruments.push_back(d1w);
+        //depoFRASwapInstruments.push_back(d1m);
+        //depoFRASwapInstruments.push_back(d3m);
+        //depoFRASwapInstruments.push_back(fra3x6);
+        //depoFRASwapInstruments.push_back(fra6x9);
         depoFRASwapInstruments.push_back(fra6x12);
-        depoFRASwapInstruments.push_back(s2y);
-        depoFRASwapInstruments.push_back(s3y);
-        depoFRASwapInstruments.push_back(s5y);
-        depoFRASwapInstruments.push_back(s10y);
-        depoFRASwapInstruments.push_back(s15y);
-        boost::shared_ptr<YieldTermStructure> depoFRASwapTermStructure(
+        //depoFRASwapInstruments.push_back(s2y);
+        //depoFRASwapInstruments.push_back(s3y);
+        //depoFRASwapInstruments.push_back(s5y);
+        //depoFRASwapInstruments.push_back(s10y);
+        //depoFRASwapInstruments.push_back(s15y);
+/*        boost::shared_ptr<YieldTermStructure> depoFRASwapTermStructure(
             new PiecewiseYieldCurve<Discount,LogLinear>(
                                        settlementDate, depoFRASwapInstruments,
                                        termStructureDayCounter,
                                        tolerance));
+*/
+		boost::shared_ptr<PiecewiseYieldCurve<ZeroYield, Linear>> depoFRASwapTermStructure(
+			new PiecewiseYieldCurve<ZeroYield, Linear>(
+				settlementDate, depoFRASwapInstruments,
+				termStructureDayCounter,
+				tolerance));
 
+		std::cout << depoFRASwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFRASwapTermStructure->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFRASwapTermStructure->zeroRate(1.0, Continuous, NoFrequency, true) << std::endl;
 
         // Term structures that will be used for pricing:
         // the one used for discounting cash flows
         RelinkableHandle<YieldTermStructure> discountingTermStructure;
         // the one used for forward rate forecasting
         RelinkableHandle<YieldTermStructure> forecastingTermStructure;
+
+		//
+		std::cout << depoSwapTermStructure->nodes()[0].first << " " << depoSwapTermStructure->nodes()[0].second << std::endl;
+		std::cout << depoSwapTermStructure->nodes()[1].first << " " << depoSwapTermStructure->nodes()[1].second << std::endl;
+		//std::cout << depoSwapTermStructure->nodes()[2].first << " " << depoSwapTermStructure->nodes()[2].second << std::endl;
+
+		std::cout << depoSwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoSwapTermStructure->zeroRate(0.001, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoSwapTermStructure->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoSwapTermStructure->zeroRate(1.5, Continuous, NoFrequency, true) << std::endl;
+		//
+
+		ZeroCurve zero_curve(std::vector<Date>{d6m->pillarDate(), d9m->pillarDate(), d1y->pillarDate()}, std::vector<Rate>{d1yQuote, d1yQuote, d1yQuote}, Thirty360()); // , NullCalendar(), Interpolator(), Continuous, NoFrequency);
+
+		std::cout << zero_curve.nodes()[0].first << " " << zero_curve.nodes()[0].second << std::endl;
+		std::cout << zero_curve.nodes()[1].first << " " << zero_curve.nodes()[1].second << std::endl;
+		std::cout << zero_curve.nodes()[2].first << " " << zero_curve.nodes()[2].second << std::endl;
+
+		std::cout << zero_curve.zeroRate(0.0, Continuous, NoFrequency,true) << std::endl;
+		std::cout << zero_curve.zeroRate(0.001, Continuous, NoFrequency, true) << std::endl;
+		std::cout << zero_curve.zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
+		std::cout << zero_curve.zeroRate(1.0, Continuous, NoFrequency, true) << std::endl;
 
 
         /*********************
