@@ -656,8 +656,11 @@ int main(int, char* []) {
         Rate fairRate;
         Spread fairSpread;
 
-        boost::shared_ptr<PricingEngine> swapEngine(
-                         new DiscountingSwapEngine(discountingTermStructure));
+//        boost::shared_ptr<PricingEngine> swapEngine(
+//                         new DiscountingSwapEngine(discountingTermStructure));
+
+		boost::shared_ptr<PricingEngine> swapEngine(
+			new DiscountingRelativeDateSwapEngine(discountingTermStructure,true,1,1,calendar));
 
         spot5YearSwap.setPricingEngine(swapEngine);
         oneYearForward5YearSwap.setPricingEngine(swapEngine);

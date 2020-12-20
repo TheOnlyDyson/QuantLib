@@ -4264,6 +4264,9 @@
     <ClInclude Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.hpp">
       <Filter>ext\termstructures</Filter>
     </ClInclude>
+    <ClInclude Include="ql\ext\pricingengines\discountingrelativedateswapengine.hpp">
+      <Filter>ext\pricingengines</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -6880,6 +6883,9 @@
     </ClCompile>
     <ClCompile Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.cpp">
       <Filter>ext\termstructures</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\pricingengines\discountingrelativedateswapengine.cpp">
+      <Filter>ext\pricingengines</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,5 +7,6 @@
 #include <ql/ext/pricingengines/discountingcurrencyswapengine.hpp>
 #include <ql/ext/pricingengines/discountingfxforwardengine.hpp>
 #include <ql/ext/pricingengines/discountingswapenginemulticurve.hpp>
+#include <ql/ext/pricingengines/discountingrelativedateswapengine.hpp>
 #include <ql/ext/pricingengines/oiccbasisswapengine.hpp>
 //#include <ql/ext/pricingengines/numericlgmswaptionengine.hpp>
