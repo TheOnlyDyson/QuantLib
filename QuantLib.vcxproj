@@ -154,16 +154,16 @@
     <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib32-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Andreas\lib\boost_1_63_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Andreas\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Andreas\lib\boost_1_75_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\lib\boost_1_75_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">
     <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Andreas\lib\boost_1_75_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\lib\boost_1_75_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">
     <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
@@ -551,6 +551,7 @@
     <ClInclude Include="ql\ext\instruments\fxforward.hpp" />
     <ClInclude Include="ql\ext\instruments\makeaverageois.hpp" />
     <ClInclude Include="ql\ext\instruments\oibasisswap.hpp" />
+    <ClInclude Include="ql\ext\instruments\oiccbasismtmresetswap.hpp" />
     <ClInclude Include="ql\ext\instruments\oiccbasisswap.hpp" />
     <ClInclude Include="ql\ext\instruments\subperiodsswap.hpp" />
     <ClInclude Include="ql\ext\instruments\tenorbasisswap.hpp" />
@@ -567,6 +568,7 @@
     <ClInclude Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\crossccybasisswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\oibasisswaphelper.hpp" />
+    <ClInclude Include="ql\ext\termstructures\oiccbasismtmresetswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\oiccbasisswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.hpp" />
     <ClInclude Include="ql\ext\termstructures\subperiodsswaphelper.hpp" />
@@ -1873,6 +1875,7 @@
     <ClCompile Include="ql\ext\instruments\fxforward.cpp" />
     <ClCompile Include="ql\ext\instruments\makeaverageois.cpp" />
     <ClCompile Include="ql\ext\instruments\oibasisswap.cpp" />
+    <ClCompile Include="ql\ext\instruments\oiccbasismtmresetswap.cpp" />
     <ClCompile Include="ql\ext\instruments\oiccbasisswap.cpp" />
     <ClCompile Include="ql\ext\instruments\subperiodsswap.cpp" />
     <ClCompile Include="ql\ext\instruments\tenorbasisswap.cpp" />
@@ -1887,6 +1890,7 @@
     <ClCompile Include="ql\ext\termstructures\crossccybasismtmresetswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\crossccybasisswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\oibasisswaphelper.cpp" />
+    <ClCompile Include="ql\ext\termstructures\oiccbasismtmresetswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\oiccbasisswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\resetablecrosscurrencyswaphelper.cpp" />
     <ClCompile Include="ql\ext\termstructures\subperiodsswaphelper.cpp" />

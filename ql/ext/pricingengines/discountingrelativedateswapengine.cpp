@@ -27,15 +27,16 @@ namespace QuantLib {
     DiscountingRelativeDateSwapEngine::DiscountingRelativeDateSwapEngine(
                             const Handle<YieldTermStructure>& discountCurve,
                             boost::optional<bool> includeSettlementDateFlows,
+							const Calendar& offsetCalendar,
                             Natural settlementDateOffset,
-                            Natural npvDateOffset,
-							const Calendar& offsetCalendar)
+                            Natural npvDateOffset
+							)
     : discountCurve_(discountCurve), includeSettlementDateFlows_(includeSettlementDateFlows),
       settlementDateOffset_(settlementDateOffset), npvDateOffset_(npvDateOffset), offsetCalendar_(offsetCalendar) {
         registerWith(discountCurve_);
 
-		QL_REQUIRE(!offsetCalendar_.empty(),
-			"offsetCalendar is empty :()");
+		QL_REQUIRE(!(offsetCalendar_.empty() && (settlementDateOffset_>0 || npvDateOffset_>0)),
+			"offsetCalendar is empty :() and offsets not Null");
 		QL_REQUIRE(!(settlementDateOffset_<0),
 			"settlementDateOffset must be null or positive");
 		QL_REQUIRE(!(npvDateOffset_<0),
@@ -50,9 +51,12 @@ namespace QuantLib {
 		results_.errorEstimate = Null<Real>();
 
 		Date refDate = discountCurve_->referenceDate();
-
-		Date npvDate = offsetCalendar_.advance(refDate, npvDateOffset_, Days);
-		Date settlementDate = offsetCalendar_.advance(refDate, settlementDateOffset_, Days);
+		Date npvDate = refDate, settlementDate = refDate;
+		
+		if (!offsetCalendar_.empty()) {
+			npvDate = offsetCalendar_.advance(refDate, npvDateOffset_, Days);
+			settlementDate = offsetCalendar_.advance(refDate, settlementDateOffset_, Days);
+		}			
 		
 		QL_REQUIRE(settlementDate >= refDate,
 			"settlement date (" << settlementDate << ") before "

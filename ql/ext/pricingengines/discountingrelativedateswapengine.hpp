@@ -37,9 +37,10 @@ namespace QuantLib {
                const Handle<YieldTermStructure>& discountCurve =
                                                  Handle<YieldTermStructure>(),
                boost::optional<bool> includeSettlementDateFlows = boost::none,
+			   const Calendar& offsetCalendar = Calendar(),
                Natural settlementDateOffset = 0, 
-               Natural npvDateOffset = 0,
-			   const Calendar& offsetCalendar = Calendar());
+               Natural npvDateOffset = 0
+			   );
 
         void calculate() const;
 		Handle<YieldTermStructure> discountCurve() const {
@@ -49,7 +50,6 @@ namespace QuantLib {
 	private:
 		Handle<YieldTermStructure> discountCurve_;
 		boost::optional<bool> includeSettlementDateFlows_;
-		Date settlementDate_, npvDate_;
         Natural settlementDateOffset_, npvDateOffset_;
 		Calendar offsetCalendar_;
     };

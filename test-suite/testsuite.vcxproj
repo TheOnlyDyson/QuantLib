@@ -170,8 +170,8 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug (static runtime)|x64'">QuantLib-test-suite-$(qlCompilerTag)-x64-mt-sgd</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Andreas\Documents\Lib\boost_1_63_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Andreas\lib\boost_1_75_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Andreas\lib\boost_1_75_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (static runtime)|x64'">
     <IncludePath>C:\Users\Andreas\Documents\Lib\boost_1_63_0;$(IncludePath)</IncludePath>

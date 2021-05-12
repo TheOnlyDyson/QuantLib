@@ -4267,6 +4267,12 @@
     <ClInclude Include="ql\ext\pricingengines\discountingrelativedateswapengine.hpp">
       <Filter>ext\pricingengines</Filter>
     </ClInclude>
+    <ClInclude Include="ql\ext\instruments\oiccbasismtmresetswap.hpp">
+      <Filter>ext\instruments</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\ext\termstructures\oiccbasismtmresetswaphelper.hpp">
+      <Filter>ext\termstructures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -6886,6 +6892,12 @@
     </ClCompile>
     <ClCompile Include="ql\ext\pricingengines\discountingrelativedateswapengine.cpp">
       <Filter>ext\pricingengines</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\instruments\oiccbasismtmresetswap.cpp">
+      <Filter>ext\instruments</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\ext\termstructures\oiccbasismtmresetswaphelper.cpp">
+      <Filter>ext\termstructures</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

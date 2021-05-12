@@ -314,7 +314,7 @@ int main(int, char* []) {
         //depoSwapInstruments.push_back(s3y);
         //epoSwapInstruments.push_back(s5y);
         //depoSwapInstruments.push_back(s10y);
-        //depoSwapInstruments.push_back(s15y);
+        depoSwapInstruments.push_back(s15y);
         boost::shared_ptr<PiecewiseYieldCurve<ZeroYield, Linear>> depoSwapTermStructure(
             new PiecewiseYieldCurve<ZeroYield,Linear>(
                                           settlementDate, depoSwapInstruments,
@@ -358,7 +358,7 @@ int main(int, char* []) {
         //depoFRASwapInstruments.push_back(s3y);
         //depoFRASwapInstruments.push_back(s5y);
         //depoFRASwapInstruments.push_back(s10y);
-        //depoFRASwapInstruments.push_back(s15y);
+        depoFRASwapInstruments.push_back(s15y);
 /*        boost::shared_ptr<YieldTermStructure> depoFRASwapTermStructure(
             new PiecewiseYieldCurve<Discount,LogLinear>(
                                        settlementDate, depoFRASwapInstruments,
@@ -463,6 +463,8 @@ int main(int, char* []) {
 		boost::shared_ptr<YieldTermStructure> plainCurve(
 			boost::make_shared<FlatForward>(0, TARGET(), 0.02, Actual365Fixed())
 		);
+
+		plainCurve->enableExtrapolation(true);
 
 		bool payDom = true;
 		Currency ccyDom = USDCurrency();
@@ -601,10 +603,10 @@ int main(int, char* []) {
 
 		///* AFR*/
 
-        Date fwdStart = calendar.advance(settlementDate, 1, Years);
+        Date fwdStart = calendar.advance(settlementDate, 0, Months);
         Date fwdMaturity = fwdStart + lenghtInYears*Years;
         Schedule fwdFixedSchedule(fwdStart, fwdMaturity,
-                                  Period(fixedLegFrequency),
+                                  Period(Daily),
                                   calendar, fixedLegConvention,
                                   fixedLegConvention,
                                   DateGeneration::Forward, false);
@@ -618,6 +620,7 @@ int main(int, char* []) {
             fwdFloatSchedule, euriborIndex, spread,
             floatingLegDayCounter);
 
+		euriborIndex->addFixing(todaysDate, 0.01);
 
         /***************
         * SWAP PRICING *
@@ -660,18 +663,20 @@ int main(int, char* []) {
 //                         new DiscountingSwapEngine(discountingTermStructure));
 
 		boost::shared_ptr<PricingEngine> swapEngine(
-			new DiscountingRelativeDateSwapEngine(discountingTermStructure,true,1,1,calendar));
+			new DiscountingRelativeDateSwapEngine(discountingTermStructure,false,calendar,0,3));
+		boost::shared_ptr<PricingEngine> swapEngine2(
+			new DiscountingSwapEngine(discountingTermStructure));
 
-        spot5YearSwap.setPricingEngine(swapEngine);
+		oneYearForward5YearSwap.setPricingEngine(swapEngine);
         oneYearForward5YearSwap.setPricingEngine(swapEngine);
 
         // Of course, you're not forced to really use different curves
-        forecastingTermStructure.linkTo(depoSwapTermStructure);
-        discountingTermStructure.linkTo(depoSwapTermStructure);
+		forecastingTermStructure.linkTo(plainCurve); forecastingTermStructure->enableExtrapolation();
+        discountingTermStructure.linkTo(plainCurve); discountingTermStructure->enableExtrapolation();
 
-        NPV = spot5YearSwap.NPV();
-        fairSpread = spot5YearSwap.fairSpread();
-        fairRate = spot5YearSwap.fairRate();
+        NPV = oneYearForward5YearSwap.NPV();
+		fairSpread = oneYearForward5YearSwap.fairSpread();
+        fairRate = oneYearForward5YearSwap.fairRate();
 
         std::cout << std::setw(headers[0].size())
                   << "depo-swap" << separator;
@@ -683,6 +688,26 @@ int main(int, char* []) {
                   << io::rate(fairRate) << separator;
         std::cout << std::endl;
 
+		oneYearForward5YearSwap.setPricingEngine(swapEngine2);
+		oneYearForward5YearSwap.setPricingEngine(swapEngine2);
+
+		// Of course, you're not forced to really use different curves
+		//forecastingTermStructure.linkTo(depoSwapTermStructure);
+		//discountingTermStructure.linkTo(depoSwapTermStructure);
+
+		NPV = oneYearForward5YearSwap.NPV();
+		fairSpread = oneYearForward5YearSwap.fairSpread();
+		fairRate = oneYearForward5YearSwap.fairRate();
+
+		std::cout << std::setw(headers[0].size())
+			<< "depo-swap 2" << separator;
+		std::cout << std::setw(headers[1].size())
+			<< std::fixed << std::setprecision(2) << NPV << separator;
+		std::cout << std::setw(headers[2].size())
+			<< io::rate(fairSpread) << separator;
+		std::cout << std::setw(headers[3].size())
+			<< io::rate(fairRate) << separator;
+		std::cout << std::endl;
 
         // let's check that the 5 years swap has been correctly re-priced
         QL_REQUIRE(std::fabs(fairRate-s5yQuote)<1e-8,

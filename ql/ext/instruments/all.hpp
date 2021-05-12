@@ -3,6 +3,7 @@
 
 #include <ql/ext/instruments/averageois.hpp>
 #include <ql/ext/instruments/crossccybasismtmresetswap.hpp>
+#include <ql/ext/instruments/oiccbasismtmresetswap.hpp>
 #include <ql/ext/instruments/crossccybasisswap.hpp>
 #include <ql/ext/instruments/crossccyswap.hpp>
 #include <ql/ext/instruments/currencyswap.hpp>

@@ -14,6 +14,7 @@
 //#include <ql/ext/termstructures/interpolateddiscountcurve2.hpp>
 #include <ql/ext/termstructures/oibasisswaphelper.hpp>
 #include <ql/ext/termstructures/oiccbasisswaphelper.hpp>
+#include <ql/ext/termstructures/oiccbasismtmresetswaphelper.hpp>
 //#include <ql/ext/termstructures/oisratehelper.hpp>
 //#include <ql/ext/termstructures/staticallycorrectedyieldtermstructure.hpp>
 #include <ql/ext/termstructures/tenorbasisswaphelper.hpp>
