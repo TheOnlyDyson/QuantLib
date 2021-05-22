@@ -56,6 +56,7 @@ namespace QuantLib {
 		fixingEndDate_ = iborIndex_->maturityDate(fixingValueDate_);
 
 		if (iborIndex_->cessationDate() == Date() || iborIndex_->forwardingFallbackTermStructure().empty() || fixingDate_ < iborIndex_->cessationDate()) {	
+			has_fallback_triggered_ = false;
 			Time spanningTime_ = dc.yearFraction(fixingValueDate_, fixingEndDate_);
 			QL_REQUIRE(spanningTime_>0.0,
 				"\n cannot calculate forward rate between " <<
@@ -120,13 +121,13 @@ namespace QuantLib {
 
     Rate IborCoupon::indexFixing() const {
 
-        /* instead of just returning index_->fixing(fixingValueDate_)
+        /* instead of just returning index_->fixing(fixingDate_)
            its logic is duplicated here using a specialized iborIndex
            forecastFixing overload which
            1) allows to save date/time recalculations, and
            2) takes into account par coupon needs
         */
-		return iborIndex_->fixing2(fixingValueDate_, false, paymentDate_);
+		return iborIndex_->fixing2(fixingDate_, false, paymentDate_);
 
 		/*
         Date today = Settings::instance().evaluationDate();

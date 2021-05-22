@@ -320,7 +320,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test_suite* test = BOOST_TEST_SUITE("QuantLib test suite");
 
     test->add(QUANTLIB_TEST_CASE(startTimer));
-
+	/*
     test->add(AmericanOptionTest::suite());
     // test->add(AndreasenHugeVolatilityInterplTest::suite(speed));
     test->add(ArrayTest::suite());
@@ -413,8 +413,9 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(ScheduleTest::suite());
     test->add(ShortRateModelTest::suite()); // fails with QL_USE_INDEXED_COUPON
     test->add(Solver1DTest::suite());
-    test->add(StatisticsTest::suite());
+    test->add(StatisticsTest::suite()); */
     test->add(SwapTest::suite());
+	/*
     test->add(SwapForwardMappingsTest::suite());
     test->add(SwaptionTest::suite());
     test->add(SwaptionVolatilityCubeTest::suite());
@@ -474,7 +475,7 @@ test_suite* init_unit_test_suite(int, char* []) {
 
     // tests for deprecated classes
     //test->add(LiborMarketModelTest::suite());
-    //test->add(LiborMarketModelProcessTest::suite());
+    //test->add(LiborMarketModelProcessTest::suite()); */
 
     test->add(QUANTLIB_TEST_CASE(stopTimer));
 

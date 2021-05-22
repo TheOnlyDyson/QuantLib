@@ -68,10 +68,6 @@ namespace QuantLib {
         Handle<YieldTermStructure> forwardingTermStructure() const;
 		Handle<YieldTermStructure> forwardingFallbackTermStructure() const;
 
-		//IborIndex withFallbackYTS(const Handle<YieldTermStructure>& fallbackYTS) { fallbackTermStructure_ = fallbackYTS; return *this; };
-		//IborIndex withCessationDate(const Date& cessationDate) { cessationDate_ = cessationDate; return *this; };
-		//IborIndex withFallbackSpread(const Spread fallback_spread) { fallback_spread_ = fallback_spread; return *this; };
-
 		void setFallbackYTS(const Handle<YieldTermStructure>& fallbackYTS) { fallbackTermStructure_ = fallbackYTS; };
 		void setCessationDate(const Date& cessationDate) { cessationDate_ = cessationDate; };
 		void setFallbackSpread(const Spread fallback_spread) { fallback_spread_ = fallback_spread; };
