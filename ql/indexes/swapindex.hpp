@@ -90,7 +90,7 @@ namespace QuantLib {
                         const Period& tenor) const;
         // @}
       protected:
-        Rate forecastFixing(const Date& fixingDate) const;
+        Rate forecastFixing(const Date& fixingDate, const Date& fallback_payDate = Date()) const;
         Period tenor_;
         boost::shared_ptr<IborIndex> iborIndex_;
         Period fixedLegTenor_;

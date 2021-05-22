@@ -54,8 +54,11 @@ namespace QuantLib {
             return iborIndex_;
         }
         //@}
+		Date fallbackFixingDate() const { return fallbackFixingDate_; }
+		Date fallbackObservationDate() const { return fallback_obs_day_; }
 		Date fixingValueDate() const { return fixingValueDate_; }
 		Date fixingEndDate() const { return fixingEndDate_; }
+		bool fallbackApplied() const { return has_fallback_triggered_; }
         //! \name FloatingRateCoupon interface
         //@{
         //! Implemented in order to manage the case of par coupon
@@ -67,7 +70,8 @@ namespace QuantLib {
         //@}
       private:
         boost::shared_ptr<IborIndex> iborIndex_;
-        Date fixingDate_, fixingValueDate_, fixingEndDate_;
+		bool has_fallback_triggered_;
+        Date fixingDate_, fallback_obs_day_, fallbackFixingDate_, fixingValueDate_, fixingEndDate_;
         Time spanningTime_;
     };
 

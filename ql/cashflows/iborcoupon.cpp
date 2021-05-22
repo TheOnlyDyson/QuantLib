@@ -49,7 +49,46 @@ namespace QuantLib {
       iborIndex_(iborIndex) {
 
         fixingDate_ = fixingDate();
+		const Calendar& fixingCalendar = iborIndex_->fixingCalendar();
+		const DayCounter& dc = iborIndex_->dayCounter();
 
+		fixingValueDate_ = iborIndex_->valueDate(fixingDate_);
+		fixingEndDate_ = iborIndex_->maturityDate(fixingValueDate_);
+
+		if (iborIndex_->cessationDate() == Date() || iborIndex_->forwardingFallbackTermStructure().empty() || fixingDate_ < iborIndex_->cessationDate()) {	
+			Time spanningTime_ = dc.yearFraction(fixingValueDate_, fixingEndDate_);
+			QL_REQUIRE(spanningTime_>0.0,
+				"\n cannot calculate forward rate between " <<
+				fixingValueDate_ << " and " << fixingEndDate_ <<
+				":\n non positive time (" << spanningTime_ <<
+				") using " << dc.name() << " daycounter");
+		}
+		else {
+			has_fallback_triggered_ = true;
+			Date d_libor_fix = fixingDate_;
+			// Date fallback_obs_day; // ISDA Suppl 70
+			Natural obs_period_shift = iborIndex_->obsPeriodShift();
+
+			fixingValueDate_ = iborIndex_->valueDateFallback(d_libor_fix, obs_period_shift); // BBG Rulebook Accrual Start Date
+			fixingEndDate_ = iborIndex_->maturityDateFallback(fixingValueDate_); // BBG Rulebook Accrual End Date
+
+			if (paymentDate_ == Date()) // fallback has to be observed 2 days before original Libor coupon pay date, otherwise roll forward
+				fallback_obs_day_ = fixingEndDate_;
+			else
+				fallback_obs_day_ = fixingCalendar.advance(paymentDate_, -static_cast<Integer>(obs_period_shift), Days); // ISDA Suppl 70
+
+			while (fixingEndDate_ > fallback_obs_day_)
+			{
+				d_libor_fix = fixingCalendar.advance(d_libor_fix, -1, Days);
+				fixingValueDate_ = iborIndex_->valueDateFallback(d_libor_fix, obs_period_shift);
+				fixingEndDate_ = iborIndex_->maturityDateFallback(fixingValueDate_);
+			}
+
+			fallbackFixingDate_ = d_libor_fix; // not the original Libor fix date but the shifted one due to ISDA Suppl 70 rule
+			spanningTime_ = dc.yearFraction(fixingValueDate_, fixingEndDate_); // right dcc? Probably yes for Actual.x dcc - should be from the RfR but converted to IBOR
+		}
+
+		/*
         const Calendar& fixingCalendar = index_->fixingCalendar();
         Natural indexFixingDays = index_->fixingDays();
 
@@ -76,7 +115,7 @@ namespace QuantLib {
                    "\n cannot calculate forward rate between " <<
                    fixingValueDate_ << " and " << fixingEndDate_ <<
                    ":\n non positive time (" << spanningTime_ <<
-                   ") using " << dc.name() << " daycounter");
+                   ") using " << dc.name() << " daycounter"); */
     }
 
     Rate IborCoupon::indexFixing() const {
@@ -87,6 +126,9 @@ namespace QuantLib {
            1) allows to save date/time recalculations, and
            2) takes into account par coupon needs
         */
+		return iborIndex_->fixing2(fixingValueDate_, false, paymentDate_);
+
+		/*
         Date today = Settings::instance().evaluationDate();
 
         if (fixingDate_>today)
@@ -114,8 +156,13 @@ namespace QuantLib {
         }
         return iborIndex_->forecastFixing(fixingValueDate_,
                                           fixingEndDate_,
-                                          spanningTime_);
+                                          spanningTime_); */
+		
     }
+	/*
+	Date IborCoupon::fixingDate() const {
+		return fallbackApplied() ? fallbackFixingDate() : FloatingRateCoupon::fixingDate();
+	} */
 
     void IborCoupon::accept(AcyclicVisitor& v) {
         Visitor<IborCoupon>* v1 =

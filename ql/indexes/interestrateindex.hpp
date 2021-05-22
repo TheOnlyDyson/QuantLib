@@ -44,14 +44,19 @@ namespace QuantLib {
                           Natural settlementDays,
                           const Currency& currency,
                           const Calendar& fixingCalendar,
-                          const DayCounter& dayCounter);
+                          const DayCounter& dayCounter,
+			              const Calendar& fallbackCalendar = Calendar());
         //! \name Index interface
         //@{
         std::string name() const;
         Calendar fixingCalendar() const;
+		Calendar fallbackCalendar() const;
         bool isValidFixingDate(const Date& fixingDate) const;
-        Rate fixing(const Date& fixingDate,
-                    bool forecastTodaysFixing = false) const;
+		Rate fixing(const Date& fixingDate,
+			bool forecastTodaysFixing = false) const;
+		Rate fixing2(const Date& fixingDate,
+			bool forecastTodaysFixing = false,
+			const Date& fallback_payDate = Date()) const; // ** REMOVE **
         //@}
         //! \name Observer interface
         //@{
@@ -75,11 +80,13 @@ namespace QuantLib {
         */
         virtual Date valueDate(const Date& fixingDate) const;
         virtual Date maturityDate(const Date& valueDate) const = 0;
+		virtual Date valueDateFallback(const Date& fixingDate, const Natural offset = 2) const;
+		virtual Date maturityDateFallback(const Date& valueDate) const;
         //@}
         //! \name Fixing calculations
         //@{
         //! It can be overridden to implement particular conventions
-        virtual Rate forecastFixing(const Date& fixingDate) const = 0;
+        virtual Rate forecastFixing(const Date& fixingDate, const Date& fallback_payDate = Date()) const = 0;
         Rate pastFixing(const Date& fixingDate) const;
         // @}
       protected:
@@ -91,6 +98,7 @@ namespace QuantLib {
         std::string name_;
       private:
         Calendar fixingCalendar_;
+		Calendar fallbackCalendar_;
     };
 
 
@@ -103,6 +111,10 @@ namespace QuantLib {
     inline Calendar InterestRateIndex::fixingCalendar() const {
         return fixingCalendar_;
     }
+
+	inline Calendar InterestRateIndex::fallbackCalendar() const {
+		return fallbackCalendar_;
+	}
 
     inline bool InterestRateIndex::isValidFixingDate(const Date& d) const {
         return fixingCalendar().isBusinessDay(d);
@@ -123,6 +135,18 @@ namespace QuantLib {
                    fixingDate << " is not a valid fixing date");
         return fixingCalendar().advance(fixingDate, fixingDays_, Days);
     }
+
+	inline Date InterestRateIndex::valueDateFallback(const Date& fixingDate, const Natural offset) const {
+		QL_REQUIRE(isValidFixingDate(fixingDate),
+			fixingDate << " is not a valid fixing date"); // not sure if required as per the BBG rulebook but doesn't hurt ...
+		return fallbackCalendar().advance( 
+			                fallbackCalendar().advance(fixingDate, fixingDays_, Days), // BBG Rulebook "Accrual Spot Date" 
+			                -static_cast<Integer>(offset), Days); // BBG Rulebook "Accrual Start Date" 
+	}
+
+	inline Date InterestRateIndex::maturityDateFallback(const Date& valueDate) const {
+		return maturityDate(valueDate);  // just rely on this as a default
+	}
 
     inline Rate InterestRateIndex::pastFixing(const Date& fixingDate) const {
         QL_REQUIRE(isValidFixingDate(fixingDate),

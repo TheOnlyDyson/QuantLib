@@ -407,7 +407,6 @@
     <ClCompile Include="vpp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="quantlibtestsuite.cpp" />
     <ClCompile Include="binaryoption.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -426,6 +425,7 @@
     <ClCompile Include="observable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="quantlibtestsuite_new.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="americanoption.hpp">

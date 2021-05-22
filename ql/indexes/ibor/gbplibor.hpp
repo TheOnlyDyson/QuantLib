@@ -41,12 +41,14 @@ namespace QuantLib {
       public:
         GBPLibor(const Period& tenor,
                  const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>())
+                                    Handle<YieldTermStructure>(),
+			     const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>())
         : Libor("GBPLibor", tenor,
                 0,
                 GBPCurrency(),
                 UnitedKingdom(UnitedKingdom::Exchange),
-                Actual365Fixed(), h) {}
+                Actual365Fixed(), h, h2) {}
     };
 
     //! Base class for the one day deposit ICE %GBP %LIBOR indexes

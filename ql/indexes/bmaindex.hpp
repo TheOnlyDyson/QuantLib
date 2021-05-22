@@ -62,7 +62,7 @@ namespace QuantLib {
                                 const Date& end);
         // @}
       protected:
-        Rate forecastFixing(const Date& fixingDate) const;
+        Rate forecastFixing(const Date& fixingDate, const Date& fallback_payDate = Date()) const;
         Handle<YieldTermStructure> termStructure_;
     };
 

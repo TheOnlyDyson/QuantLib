@@ -44,12 +44,14 @@ namespace QuantLib {
       public:
         CHFLibor(const Period& tenor,
                  const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>())
+                                    Handle<YieldTermStructure>(),
+			     const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>())
         : Libor("CHFLibor", tenor,
                 2,
                 CHFCurrency(),
                 Switzerland(),
-                Actual360(), h) {}
+                Actual360(), h, h2) {}
     };
 
     //! base class for the one day deposit BBA %CHF %LIBOR indexes

@@ -41,12 +41,14 @@ namespace QuantLib {
       public:
         USDLibor(const Period& tenor,
                  const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>())
+                                    Handle<YieldTermStructure>(),
+			     const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>())
         : Libor("USDLibor", tenor,
                 2,
                 USDCurrency(),
                 UnitedStates(UnitedStates::Settlement),
-                Actual360(), h) {}
+                Actual360(), h, h2) {}
     };
 
     //! base class for the one day deposit ICE %USD %LIBOR indexes

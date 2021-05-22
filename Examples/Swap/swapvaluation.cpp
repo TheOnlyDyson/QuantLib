@@ -314,14 +314,14 @@ int main(int, char* []) {
         //depoSwapInstruments.push_back(s3y);
         //epoSwapInstruments.push_back(s5y);
         //depoSwapInstruments.push_back(s10y);
-        depoSwapInstruments.push_back(s15y);
+        //depoSwapInstruments.push_back(s15y);
         boost::shared_ptr<PiecewiseYieldCurve<ZeroYield, Linear>> depoSwapTermStructure(
             new PiecewiseYieldCurve<ZeroYield,Linear>(
                                           settlementDate, depoSwapInstruments,
                                           termStructureDayCounter,
                                           tolerance));
 
-		depoSwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true);
+		//depoSwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true);
 
         // A depo-futures-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoFutSwapInstruments;
@@ -370,17 +370,17 @@ int main(int, char* []) {
 				settlementDate, depoFRASwapInstruments,
 				termStructureDayCounter,
 				tolerance));
-
+		
 		std::cout << depoFRASwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true) << std::endl;
 		std::cout << depoFRASwapTermStructure->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
 		std::cout << depoFRASwapTermStructure->zeroRate(1.0, Continuous, NoFrequency, true) << std::endl;
-
+		
         // Term structures that will be used for pricing:
         // the one used for discounting cash flows
         RelinkableHandle<YieldTermStructure> discountingTermStructure;
         // the one used for forward rate forecasting
         RelinkableHandle<YieldTermStructure> forecastingTermStructure;
-
+		/*
 		//
 		std::cout << depoSwapTermStructure->nodes()[0].first << " " << depoSwapTermStructure->nodes()[0].second << std::endl;
 		std::cout << depoSwapTermStructure->nodes()[1].first << " " << depoSwapTermStructure->nodes()[1].second << std::endl;
@@ -391,7 +391,7 @@ int main(int, char* []) {
 		std::cout << depoSwapTermStructure->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
 		std::cout << depoSwapTermStructure->zeroRate(1.5, Continuous, NoFrequency, true) << std::endl;
 		//
-
+		*/
 		ZeroCurve zero_curve(std::vector<Date>{d6m->pillarDate(), d9m->pillarDate(), d1y->pillarDate()}, std::vector<Rate>{d1yQuote, d1yQuote, d1yQuote}, Thirty360()); // , NullCalendar(), Interpolator(), Continuous, NoFrequency);
 
 		std::cout << zero_curve.nodes()[0].first << " " << zero_curve.nodes()[0].second << std::endl;
@@ -422,26 +422,40 @@ int main(int, char* []) {
         Frequency floatingLegFrequency = Semiannual;
         boost::shared_ptr<IborIndex> euriborIndex(
                                      new Euribor6M(forecastingTermStructure));
+		boost::shared_ptr<IborIndex> liborIndex_3M_f(
+			new USDLibor(Period(floatingLegFrequency), forecastingTermStructure, forecastingTermStructure));
+
         Spread spread = 0.0;
 
-        Integer lenghtInYears = 1;
+        Integer lenghtInYears = 20;
         VanillaSwap::Type swapType = VanillaSwap::Payer;
 
-        Date maturity = settlementDate + lenghtInYears*Years;
-        Schedule fixedSchedule(settlementDate, maturity,
+		Date startDate = settlementDate + lenghtInYears*Years;
+        Date maturity = settlementDate + (lenghtInYears+2)*Years;
+        Schedule fixedSchedule(startDate, maturity,
                                Period(fixedLegFrequency),
                                calendar, fixedLegConvention,
                                fixedLegConvention,
                                DateGeneration::Forward, false);
-        Schedule floatSchedule(settlementDate, maturity,
+        Schedule floatSchedule(startDate, maturity,
                                Period(floatingLegFrequency),
                                calendar, floatingLegConvention,
                                floatingLegConvention,
                                DateGeneration::Forward, false);
         VanillaSwap spot5YearSwap(swapType, nominal,
             fixedSchedule, fixedRate, fixedLegDayCounter,
-            floatSchedule, euriborIndex, spread,
+            floatSchedule, liborIndex_3M_f /*euriborIndex*/, spread,
             floatingLegDayCounter);
+
+		boost::shared_ptr<YieldTermStructure> plainCurve(
+			boost::make_shared<FlatForward>(0, TARGET(), 0.02, Actual365Fixed())
+		);
+		forecastingTermStructure.linkTo(plainCurve);
+		boost::shared_ptr<PricingEngine> swapEngine3(
+			                         new DiscountingSwapEngine(forecastingTermStructure));
+		spot5YearSwap.setPricingEngine(swapEngine3);
+
+		std::cout << spot5YearSwap.NPV() << std::endl;
 
 		///* AFR*/
 		boost::shared_ptr<IborIndex> euriborIndex_6M(
@@ -459,10 +473,10 @@ int main(int, char* []) {
 		TenorBasisSwap tenorSwap1(nominal, payLongIndex, floatSchedule_6M, euriborIndex_6M, 0.0, floatSchedule_3M, euriborIndex_3M,false, SubPeriodsCoupon_ext::Compounding);
 		TenorBasisSwap tenorSwap2(settlementDate, nominal, Period(Annual),false, euriborIndex_6M, 0.0, euriborIndex_3M, 0.0, Period(Quarterly), DateGeneration::Backward,false,SubPeriodsCoupon_ext::Compounding);
 		///* AFR*/
-
+		/*
 		boost::shared_ptr<YieldTermStructure> plainCurve(
 			boost::make_shared<FlatForward>(0, TARGET(), 0.02, Actual365Fixed())
-		);
+		);*/
 
 		plainCurve->enableExtrapolation(true);
 
@@ -472,7 +486,7 @@ int main(int, char* []) {
 		Real nominalDomInitial = -1.0;
 		Real nominalFor = 10000.0;
 		boost::shared_ptr<IborIndex> liborIndex_3M(
-			new USDLibor(Period(Quarterly),forecastingTermStructure));
+			new USDLibor(Period(Quarterly),forecastingTermStructure, forecastingTermStructure));
 		Spread spreadDom = 0.0;
 		Spread spreadFor = 0.0;
 

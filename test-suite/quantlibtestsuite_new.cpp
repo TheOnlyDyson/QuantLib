@@ -51,7 +51,7 @@
 
 #endif
 #include "utilities.hpp"
-#include "speedlevel.hpp"
+//#include "speedlevel.hpp"
 
 #include "americanoption.hpp"
 #include "amortizingbond.hpp"
@@ -328,7 +328,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(AssetSwapTest::suite()); // fails with QL_USE_INDEXED_COUPON
     test->add(AutocovariancesTest::suite());
     test->add(BarrierOptionTest::suite());
-    test->add(BasketOptionTest::suite());
+    //test->add(BasketOptionTest::suite());
     test->add(BatesModelTest::suite());
     test->add(BermudanSwaptionTest::suite());
     test->add(BinaryOptionTest::suite());
@@ -353,7 +353,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(DigitalOptionTest::suite());
     test->add(DistributionTest::suite());
     test->add(DividendOptionTest::suite());
-    test->add(EuropeanOptionTest::suite());
+    //test->add(EuropeanOptionTest::suite());
     test->add(ExchangeRateTest::suite());
     test->add(FastFourierTransformTest::suite());
     test->add(FdHestonTest::suite());
@@ -380,12 +380,12 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(LinearLeastSquaresRegressionTest::suite());
     test->add(LookbackOptionTest::suite());
     test->add(LowDiscrepancyTest::suite());
-    test->add(MarketModelTest::suite());
-    test->add(MarketModelCmsTest::suite());
-    test->add(MarketModelSmmTest::suite());
-    test->add(MarketModelSmmCapletAlphaCalibrationTest::suite());
-    test->add(MarketModelSmmCapletCalibrationTest::suite());
-    test->add(MarketModelSmmCapletHomoCalibrationTest::suite());
+    //test->add(MarketModelTest::suite());
+    //test->add(MarketModelCmsTest::suite());
+    //test->add(MarketModelSmmTest::suite());
+    //test->add(MarketModelSmmCapletAlphaCalibrationTest::suite());
+    //test->add(MarketModelSmmCapletCalibrationTest::suite());
+    //test->add(MarketModelSmmCapletHomoCalibrationTest::suite());
     test->add(MarkovFunctionalTest::suite());
     test->add(MatricesTest::suite());
     test->add(MCLongstaffSchwartzEngineTest::suite());
@@ -428,38 +428,38 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(VolatilityModelsTest::suite());
 
     // tests for experimental classes
-    test->add(AmortizingBondTest::suite());
-    test->add(AsianOptionTest::experimental());
-    test->add(BarrierOptionTest::experimental());
-    test->add(DoubleBarrierOptionTest::experimental());
-    test->add(BlackDeltaCalculatorTest::suite());
-    test->add(CatBondTest::suite());
-    test->add(CdoTest::suite());
-    test->add(CdsOptionTest::suite());
-    test->add(ChooserOptionTest::suite());
+    //test->add(AmortizingBondTest::suite());
+    //test->add(AsianOptionTest::experimental());
+    //test->add(BarrierOptionTest::experimental());
+    //test->add(DoubleBarrierOptionTest::experimental());
+	//test->add(BlackDeltaCalculatorTest::suite());
+	//test->add(CatBondTest::suite());
+    //test->add(CdoTest::suite());
+	//test->add(CdsOptionTest::suite());
+	//test->add(ChooserOptionTest::suite());
     //test->add(CmsSpreadTest::suite());
-    test->add(CommodityUnitOfMeasureTest::suite());
-    test->add(CompoundOptionTest::suite());
-    test->add(ConvertibleBondTest::suite());
-    test->add(CreditRiskPlusTest::suite());
-    test->add(DoubleBarrierOptionTest::suite());
-    test->add(DoubleBinaryOptionTest::suite());
-    test->add(EuropeanOptionTest::experimental());
-    test->add(EverestOptionTest::suite());
-    test->add(ExtendedTreesTest::suite());
-    test->add(ExtensibleOptionsTest::suite());
+	//test->add(CommodityUnitOfMeasureTest::suite());
+	//test->add(CompoundOptionTest::suite());
+	//test->add(ConvertibleBondTest::suite());
+	//test->add(CreditRiskPlusTest::suite());
+	//test->add(DoubleBarrierOptionTest::suite());
+	//test->add(DoubleBinaryOptionTest::suite());
+    //test->add(EuropeanOptionTest::experimental());
+	//test->add(EverestOptionTest::suite());
+	//test->add(ExtendedTreesTest::suite());
+	//test->add(ExtensibleOptionsTest::suite());
     // test->add(GaussianQuadraturesTest::experimental());
-    test->add(HestonModelTest::experimental());
-    test->add(HestonSLVModelTest::experimental());
-    test->add(HimalayaOptionTest::suite());
-    test->add(InflationCPICapFloorTest::suite());
-    test->add(InflationVolTest::suite());
-    test->add(MargrabeOptionTest::suite());
-    test->add(NoArbSabrTest::suite());
+    //test->add(HestonModelTest::experimental());
+	//test->add(HestonSLVModelTest::experimental());
+	//test->add(HimalayaOptionTest::suite());
+	//test->add(InflationCPICapFloorTest::suite());
+	//test->add(InflationVolTest::suite());
+	//test->add(MargrabeOptionTest::suite());
+    //test->add(NoArbSabrTest::suite());
     // test->add(NormalCLVModelTest::experimental(speed));
     // test->add(NthToDefaultTest::suite(speed));
-    test->add(PagodaOptionTest::suite());
-    test->add(PartialTimeBarrierOptionTest::suite());
+	//test->add(PagodaOptionTest::suite());
+	//test->add(PartialTimeBarrierOptionTest::suite());
     test->add(QuantoOptionTest::experimental());
     test->add(RiskNeutralDensityCalculatorTest::experimental());
     test->add(SpreadOptionTest::suite());
@@ -473,8 +473,8 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(ZabrTest::suite());
 
     // tests for deprecated classes
-    test->add(LiborMarketModelTest::suite());
-    test->add(LiborMarketModelProcessTest::suite());
+    //test->add(LiborMarketModelTest::suite());
+    //test->add(LiborMarketModelProcessTest::suite());
 
     test->add(QUANTLIB_TEST_CASE(stopTimer));
 

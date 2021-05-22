@@ -45,12 +45,14 @@ namespace QuantLib {
       public:
         JPYLibor(const Period& tenor,
                  const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>())
+                                    Handle<YieldTermStructure>(),
+			     const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>())
         : Libor("JPYLibor", tenor,
                 2,
                 JPYCurrency(),
                 Japan(),
-                Actual360(), h) {}
+                Actual360(), h, h2) {}
     };
 
     //! base class for the one day deposit ICE %JPY %LIBOR indexes

@@ -76,7 +76,7 @@ namespace QuantLib {
         return discount_;  // empty if not exogenous
     }
 
-    Rate SwapIndex::forecastFixing(const Date& fixingDate) const {
+    Rate SwapIndex::forecastFixing(const Date& fixingDate, const Date& fallback_payDate) const {
         return underlyingSwap(fixingDate)->fairRate();
     }
 

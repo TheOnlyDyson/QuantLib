@@ -84,7 +84,7 @@ namespace QuantLib {
                              .forwards();
     }
 
-    Rate BMAIndex::forecastFixing(const Date& fixingDate) const {
+    Rate BMAIndex::forecastFixing(const Date& fixingDate, const Date& fallback_payDate) const {
         QL_REQUIRE(!termStructure_.empty(),
                    "null term structure set to this instance of " << name());
         Date start = fixingCalendar().advance(fixingDate, 1, Days);

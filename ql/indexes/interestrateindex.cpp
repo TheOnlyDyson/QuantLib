@@ -31,10 +31,11 @@ namespace QuantLib {
                                          Natural fixingDays,
                                          const Currency& currency,
                                          const Calendar& fixingCalendar,
-                                         const DayCounter& dayCounter)
+                                         const DayCounter& dayCounter,
+		                                 const Calendar& fallbackCalendar)
     : familyName_(familyName), tenor_(tenor), fixingDays_(fixingDays),
       currency_(currency), dayCounter_(dayCounter),
-      fixingCalendar_(fixingCalendar) {
+      fixingCalendar_(fixingCalendar), fallbackCalendar_(fallbackCalendar == Calendar() ? fixingCalendar : fallbackCalendar) {
         tenor_.normalize();
 
         std::ostringstream out;
@@ -58,8 +59,45 @@ namespace QuantLib {
         registerWith(IndexManager::instance().notifier(name()));
     }
 
-    Rate InterestRateIndex::fixing(const Date& fixingDate,
-                                   bool forecastTodaysFixing) const {
+	Rate InterestRateIndex::fixing(const Date& fixingDate,
+		bool forecastTodaysFixing) const {
+
+		QL_REQUIRE(isValidFixingDate(fixingDate),
+			"Fixing date " << fixingDate << " is not valid");
+
+		Date today = Settings::instance().evaluationDate();
+
+		if (fixingDate>today ||
+			(fixingDate == today && forecastTodaysFixing))
+			return forecastFixing(fixingDate);
+
+		if (fixingDate<today ||
+			Settings::instance().enforcesTodaysHistoricFixings()) {
+			// must have been fixed
+			// do not catch exceptions
+			Rate result = pastFixing(fixingDate);
+			QL_REQUIRE(result != Null<Real>(),
+				"Missing " << name() << " fixing for " << fixingDate);
+			return result;
+		}
+
+		try {
+			// might have been fixed
+			Rate result = pastFixing(fixingDate);
+			if (result != Null<Real>())
+				return result;
+			else
+				;   // fall through and forecast
+		}
+		catch (Error&) {
+			;   // fall through and forecast
+		}
+		return forecastFixing(fixingDate);
+	}
+
+    Rate InterestRateIndex::fixing2(const Date& fixingDate,
+                                   bool forecastTodaysFixing,
+		                           const Date& fallback_payDate) const {
 
         QL_REQUIRE(isValidFixingDate(fixingDate),
                    "Fixing date " << fixingDate << " is not valid");
@@ -68,7 +106,7 @@ namespace QuantLib {
 
         if (fixingDate>today ||
             (fixingDate==today && forecastTodaysFixing))
-            return forecastFixing(fixingDate);
+            return forecastFixing(fixingDate, fallback_payDate);
 
         if (fixingDate<today ||
             Settings::instance().enforcesTodaysHistoricFixings()) {
@@ -90,7 +128,7 @@ namespace QuantLib {
         } catch (Error&) {
                 ;   // fall through and forecast
         }
-        return forecastFixing(fixingDate);
+        return forecastFixing(fixingDate, fallback_payDate);
     }
 
 }

@@ -43,28 +43,53 @@ namespace QuantLib {
                   bool endOfMonth,
                   const DayCounter& dayCounter,
                   const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>());
+                                    Handle<YieldTermStructure>(),			      
+			      const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>(),
+			      const Date& cessationDate = Date(),
+			      const Spread fallback_spread = QL_NULL_INTEGER,
+			      const Natural obs_period_shift = 2,
+			      const Calendar& fallbackCalendar = Calendar()); 
+		// const boost::shared_ptr<IborIndex>& fallbackIndex = boost::shared_ptr<IborIndex>() maybe better ....
         //! \name InterestRateIndex interface
         //@{
         Date maturityDate(const Date& valueDate) const;
-        Rate forecastFixing(const Date& fixingDate) const;
+		Date maturityDateFallback(const Date& valueDate) const override;
+		Rate forecastFixing(const Date& fixingDate, const Date& fixing_payDate = Date()) const;
         // @}
         //! \name Inspectors
         //@{
         BusinessDayConvention businessDayConvention() const;
         bool endOfMonth() const { return endOfMonth_; }
+		Date cessationDate() const { return cessationDate_; }
+		Spread fallbackSpread() const { return fallback_spread_; }
+		Natural obsPeriodShift() const { return obs_period_shift_; }
         //! the curve used to forecast fixings
         Handle<YieldTermStructure> forwardingTermStructure() const;
+		Handle<YieldTermStructure> forwardingFallbackTermStructure() const;
+
+		//IborIndex withFallbackYTS(const Handle<YieldTermStructure>& fallbackYTS) { fallbackTermStructure_ = fallbackYTS; return *this; };
+		//IborIndex withCessationDate(const Date& cessationDate) { cessationDate_ = cessationDate; return *this; };
+		//IborIndex withFallbackSpread(const Spread fallback_spread) { fallback_spread_ = fallback_spread; return *this; };
+
+		void setFallbackYTS(const Handle<YieldTermStructure>& fallbackYTS) { fallbackTermStructure_ = fallbackYTS; };
+		void setCessationDate(const Date& cessationDate) { cessationDate_ = cessationDate; };
+		void setFallbackSpread(const Spread fallback_spread) { fallback_spread_ = fallback_spread; };
         //@}
         //! \name Other methods
         //@{
         //! returns a copy of itself linked to a different forwarding curve
         virtual boost::shared_ptr<IborIndex> clone(
-                        const Handle<YieldTermStructure>& forwarding) const;
+                        const Handle<YieldTermStructure>& forwarding, 
+			            const Handle<YieldTermStructure>& fallback = Handle<YieldTermStructure>()) const;
         // @}
       protected:
         BusinessDayConvention convention_;
         Handle<YieldTermStructure> termStructure_;
+		Handle<YieldTermStructure> fallbackTermStructure_;
+		Date cessationDate_;
+		Spread fallback_spread_;
+		Natural obs_period_shift_;
         bool endOfMonth_;
       private:
         // overload to avoid date/time (re)calculation
@@ -79,9 +104,15 @@ namespace QuantLib {
            public, but before doing that I'd think hard whether we
            have any other way to get the same results.
         */
-        Rate forecastFixing(const Date& valueDate,
+        /*
+		Rate forecastFixing(const Date& valueDate,
                             const Date& endDate,
                             Time t) const;
+							*/
+		Rate forecastFixing(const Date& valueDate,
+			                const Date& endDate,
+			                Time t,
+			                bool has_fallback_triggered = false) const;
         friend class IborCoupon;
     };
 
@@ -112,15 +143,32 @@ namespace QuantLib {
         return termStructure_;
     }
 
-    inline Rate IborIndex::forecastFixing(const Date& d1,
-                                          const Date& d2,
-                                          Time t) const {
-        QL_REQUIRE(!termStructure_.empty(),
-                   "null term structure set to this instance of " << name());
-        DiscountFactor disc1 = termStructure_->discount(d1);
-        DiscountFactor disc2 = termStructure_->discount(d2);
-        return (disc1/disc2 - 1.0) / t;
-    }
+	inline Handle<YieldTermStructure>
+		IborIndex::forwardingFallbackTermStructure() const {
+		return fallbackTermStructure_;
+	}
+
+	inline Rate IborIndex::forecastFixing(const Date& d1,
+		                                  const Date& d2,
+		                                  Time t,
+		                                  bool has_fallback_triggered) const {
+		QL_REQUIRE(!termStructure_.empty(),
+			"null term structure set to this instance of " << name());
+
+		if (!has_fallback_triggered) {
+			DiscountFactor disc1 = termStructure_->discount(d1);
+			DiscountFactor disc2 = termStructure_->discount(d2);
+			return (disc1 / disc2 - 1.0) / t;
+		}
+		else {
+			QL_REQUIRE(!fallbackTermStructure_.empty(),
+				"null fallback term structure set to this instance of " << name());
+			DiscountFactor disc1 = fallbackTermStructure_->discount(d1);
+			DiscountFactor disc2 = fallbackTermStructure_->discount(d2);
+			return (disc1 / disc2 - 1.0) / t + fallback_spread_; 
+		}
+	}
+
 
 }
 

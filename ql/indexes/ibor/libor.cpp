@@ -22,6 +22,9 @@
 #include <ql/indexes/ibor/libor.hpp>
 #include <ql/time/calendars/jointcalendar.hpp>
 #include <ql/time/calendars/unitedkingdom.hpp>
+#include <ql/time/calendars/unitedstates.hpp>
+#include <ql/time/calendars/switzerland.hpp>
+#include <ql/time/calendars/japan.hpp>
 #include <ql/currencies/europe.hpp>
 
 namespace QuantLib {
@@ -54,6 +57,92 @@ namespace QuantLib {
             }
         }
 
+		Spread liborFallbackSpread(const Currency& ccy, const Period& p) {
+			if (ccy.code() == "USD")
+				switch (p.frequency()) {
+				case Monthly:
+					return 0.11448 / 100.0;
+				case Quarterly:
+					return 0.26161 / 100.0;
+				case Semiannual:
+					return 0.42826 / 100.0;
+				case Annual:
+					return 0.71513 / 100.0;
+				default:
+					QL_FAIL("invalid time units");
+				}
+			else if (ccy.code() == "GBP")
+				switch (p.frequency()) {
+				case Monthly:
+					return 0.0326 / 100.0;
+				case Quarterly:
+					return 0.0633 / 100.0;
+				case Semiannual:
+					return 0.1193 / 100.0;
+				case Annual:
+					return 0.4644 / 100.0;
+				default:
+					QL_FAIL("invalid time units");
+				}
+			else if (ccy.code() == "CHF")
+				switch (p.frequency()) {
+				case Monthly:
+					return -0.0571 / 100.0;
+				case Quarterly:
+					return 0.0031 / 100.0;
+				case Semiannual:
+					return 0.0741 / 100.0;
+				case Annual:
+					return 0.2048 / 100.0;
+				default:
+					QL_FAIL("invalid time units");
+				}
+			else if (ccy.code() == "JPY")
+				switch (p.frequency()) {
+				case Monthly:
+					return -0.02923 / 100.0;
+				case Quarterly:
+					return 0.00835 / 100.0;
+				case Semiannual:
+					return 0.05809 / 100.0;
+				case Annual:
+					return 0.16600 / 100.0;
+				default:
+					QL_FAIL("invalid time units");
+				}
+			else
+				return 0.0;
+		}
+
+		Date liborCessationDate(const Currency& ccy, const Period& p) {
+			if (ccy.code() == "CHF" || ccy.code() == "GBP" || ccy.code() == "JPY")
+				return Date(31, December, 2021); 
+			else if (ccy.code() == "USD")
+				switch (p.frequency()) {
+				 case Monthly:
+				 case Quarterly:
+				 case Semiannual:
+					return Date(30, June, 2023);
+				 default:
+					return Date(31, December, 2021);
+			}
+			else
+				return Date();
+		}
+		
+		Calendar liborFallbackCalendar(const Currency& ccy) {
+			if (ccy.code() == "USD")
+				return UnitedStates(UnitedStates::GovernmentBond);
+			else if (ccy.code() == "GBP")
+				return UnitedKingdom(UnitedKingdom::Exchange);
+			else if (ccy.code() == "CHF")
+				return Switzerland(); // 
+			else if (ccy.code() == "JPY")
+				return Japan();
+			else
+				return Calendar();
+		}
+
     }
 
 
@@ -63,7 +152,12 @@ namespace QuantLib {
                  const Currency& currency,
                  const Calendar& financialCenterCalendar,
                  const DayCounter& dayCounter,
-                 const Handle<YieldTermStructure>& h)
+                 const Handle<YieldTermStructure>& h,
+				 const Handle<YieldTermStructure>& h2,
+		         const Date& cessationDate,
+				 const Spread fallback_spread,
+				 const Natural obs_period_shift,
+		         const Calendar& fallbackCalendar)
     : IborIndex(familyName, tenor, settlementDays, currency,
                 // http://www.bba.org.uk/bba/jsp/polopoly.jsp?d=225&a=1412 :
                 // UnitedKingdom::Exchange is the fixing calendar for
@@ -71,7 +165,11 @@ namespace QuantLib {
                 // b) all indexes but o/n and s/n
                 UnitedKingdom(UnitedKingdom::Exchange),
                 liborConvention(tenor), liborEOM(tenor),
-                dayCounter, h),
+                dayCounter, h,  h2, 
+		        cessationDate==Date() ? liborCessationDate(currency, tenor) : cessationDate, 
+		        fallback_spread==QL_NULL_INTEGER ? liborFallbackSpread(currency,tenor) : fallback_spread,
+		        obs_period_shift, 
+		        fallbackCalendar==Calendar() ? liborFallbackCalendar(currency) : fallbackCalendar),
       financialCenterCalendar_(financialCenterCalendar),
       jointCalendar_(JointCalendar(UnitedKingdom(UnitedKingdom::Exchange),
                                    financialCenterCalendar,
@@ -117,14 +215,19 @@ namespace QuantLib {
     }
 
     boost::shared_ptr<IborIndex> Libor::clone(
-                                  const Handle<YieldTermStructure>& h) const {
+                                  const Handle<YieldTermStructure>& h, const Handle<YieldTermStructure>& h2) const {
         return boost::shared_ptr<IborIndex>(new Libor(familyName(),
                                                       tenor(),
                                                       fixingDays(),
                                                       currency(),
                                                       financialCenterCalendar_,
                                                       dayCounter(),
-                                                      h));
+                                                      h,
+		                                              h2.empty() ? forwardingFallbackTermStructure() : h2,
+													  cessationDate(),
+			                                          fallbackSpread(),
+			                                          obsPeriodShift(),
+			                                          fallbackCalendar()));
     }
 
 

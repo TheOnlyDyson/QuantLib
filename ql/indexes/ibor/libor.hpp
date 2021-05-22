@@ -44,7 +44,13 @@ namespace QuantLib {
               const Calendar& financialCenterCalendar,
               const DayCounter& dayCounter,
               const Handle<YieldTermStructure>& h =
-                                    Handle<YieldTermStructure>());
+                                    Handle<YieldTermStructure>(),
+			  const Handle<YieldTermStructure>& h2 =
+			                        Handle<YieldTermStructure>(),
+			  const Date& cessationDate = Date(),
+			  const Spread fallback_spread = QL_NULL_INTEGER,
+			  const Natural obs_period_shift = 2,
+			  const Calendar& fallbackCalendar = Calendar());
         /*! \name Date calculations
 
             See <https://www.theice.com/marketdata/reports/170>.
@@ -56,7 +62,8 @@ namespace QuantLib {
         //! \name Other methods
         //@{
         boost::shared_ptr<IborIndex> clone(
-                                   const Handle<YieldTermStructure>& h) const;
+                                   const Handle<YieldTermStructure>& h,
+			                       const Handle<YieldTermStructure>& h2 = Handle<YieldTermStructure>()) const;
         // @}
         //! \name Other inspectors
         //@{
