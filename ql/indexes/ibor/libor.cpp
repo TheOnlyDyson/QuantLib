@@ -76,9 +76,9 @@ namespace QuantLib {
 				case Monthly:
 					return 0.0326 / 100.0;
 				case Quarterly:
-					return 0.0633 / 100.0;
-				case Semiannual:
 					return 0.1193 / 100.0;
+				case Semiannual:
+					return 0.2766 / 100.0;
 				case Annual:
 					return 0.4644 / 100.0;
 				default:
