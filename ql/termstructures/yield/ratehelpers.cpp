@@ -292,6 +292,70 @@ namespace QuantLib {
             RateHelper::accept(v);
     }
 
+//--------------------------------------------------------------------------------
+
+	RollingFuturesRateHelper::RollingFuturesRateHelper(const Handle<Quote>& price,
+		Real series,
+		const shared_ptr<IborIndex>& i,
+		const Handle<Quote>& convAdj)
+		: RelativeDateRateHelper(price), series_(series), iborIndex_(i), convAdj_(convAdj) {
+
+		initializeDates();
+		registerWith(convAdj);
+	}
+
+	Real RollingFuturesRateHelper::impliedQuote() const {
+		QL_REQUIRE(termStructure_ != 0, "term structure not set");
+		Rate forwardRate = (termStructure_->discount(earliestDate_) /
+			termStructure_->discount(maturityDate_) - 1.0) / yearFraction_;
+		Rate convAdj = convAdj_.empty() ? 0.0 : convAdj_->value();
+		// Convexity, as FRA/futures adjustment, has been used in the
+		// past to take into account futures margining vs FRA.
+		// Therefore, there's no requirement for it to be non-negative.
+		Rate futureRate = forwardRate + convAdj;
+		return 100.0 * (1.0 - futureRate);
+	}
+
+	Real RollingFuturesRateHelper::convexityAdjustment() const {
+		return convAdj_.empty() ? 0.0 : convAdj_->value();
+	}
+
+	void RollingFuturesRateHelper::accept(AcyclicVisitor& v) {
+		Visitor<RollingFuturesRateHelper>* v1 =
+			dynamic_cast<Visitor<RollingFuturesRateHelper>*>(&v);
+		if (v1 != 0)
+			v1->visit(*this);
+		else
+			RateHelper::accept(v);
+	}
+
+
+	Date RollingFuturesRateHelper::getImmDate(Date asof, Size i) {
+		Date imm = asof;
+		for (Size j = 0; j < i; j++) {
+			imm = IMM::nextDate(imm, true);
+		}
+		return imm;
+	}
+
+	void RollingFuturesRateHelper::initializeDates() {
+		// if the evaluation date is not a business day
+		// then move to the next business day
+		Date referenceDate = iborIndex_->fixingCalendar().adjust(evaluationDate_);
+
+		earliestDate_ = iborIndex_->fixingCalendar().adjust(getImmDate(referenceDate, series_));
+
+		const Calendar& cal = iborIndex_->fixingCalendar();
+
+		maturityDate_ = cal.advance(earliestDate_, iborIndex_->tenor(),
+			iborIndex_->businessDayConvention());
+		yearFraction_ = iborIndex_->dayCounter().yearFraction(earliestDate_,
+			maturityDate_);
+		pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
+	}
+
+//-------------------------------------------------------------------------------------
+
     DepositRateHelper::DepositRateHelper(const Handle<Quote>& rate,
                                          const Period& tenor,
                                          Natural fixingDays,

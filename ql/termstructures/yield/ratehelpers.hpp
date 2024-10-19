@@ -105,6 +105,34 @@ namespace QuantLib {
         Handle<Quote> convAdj_;
     };
 
+	//! Rate helper for bootstrapping over IborIndex futures prices
+	class RollingFuturesRateHelper : public RelativeDateRateHelper {
+	public:
+		RollingFuturesRateHelper(const Handle<Quote>& price,
+			Real series,
+			const boost::shared_ptr<IborIndex>& iborIndex,
+			const Handle<Quote>& convexityAdjustment = Handle<Quote>());
+		//! \name RateHelper interface
+		//@{
+		Real impliedQuote() const;
+		//@}
+		//! \name FuturesRateHelper inspectors
+		//@{
+		Real convexityAdjustment() const;
+		//@}
+		//! \name Visitability
+		//@{
+		void accept(AcyclicVisitor&);
+		//@}
+	private:
+		void initializeDates();
+		Date getImmDate(Date asof, Size i);
+		Real series_;
+		boost::shared_ptr<IborIndex> iborIndex_;
+
+		Time yearFraction_;
+		Handle<Quote> convAdj_;
+	};
 
     //! Rate helper for bootstrapping over deposit rates
     class DepositRateHelper : public RelativeDateRateHelper {
