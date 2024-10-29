@@ -34,7 +34,9 @@
 #include <ql/instruments/bmaswap.hpp>
 #include <ql/instruments/futures.hpp>
 #include <ql/time/calendar.hpp>
+#include <ql/time/calendars/target.hpp>
 #include <ql/time/daycounter.hpp>
+#include <ql/time/daycounters/actual360.hpp>
 
 namespace QuantLib {
 
@@ -109,8 +111,17 @@ namespace QuantLib {
 	class RollingFuturesRateHelper : public RelativeDateRateHelper {
 	public:
 		RollingFuturesRateHelper(const Handle<Quote>& price,
-			Real series,
+			Natural series,
+			Natural lengthInMonths,
+			Natural settlementDays = 0,
+			const Calendar& calendar = TARGET(),
+			const DayCounter& dayCounter = Actual360(),
+			BusinessDayConvention convention = Following,
+			const Handle<Quote>& convexityAdjustment = Handle<Quote>());
+		RollingFuturesRateHelper(const Handle<Quote>& price,
+			Natural series,
 			const boost::shared_ptr<IborIndex>& iborIndex,
+			Natural settlementDays = 0,
 			const Handle<Quote>& convexityAdjustment = Handle<Quote>());
 		//! \name RateHelper interface
 		//@{
@@ -127,8 +138,12 @@ namespace QuantLib {
 	private:
 		void initializeDates();
 		Date getImmDate(Date asof, Size i);
-		Real series_;
-		boost::shared_ptr<IborIndex> iborIndex_;
+
+		Natural series_, settlementDays_, lengthInMonths_;
+		Calendar cal_;
+		DayCounter dcc_;
+		BusinessDayConvention bdc_;
+		//boost::shared_ptr<IborIndex> iborIndex_;
 
 		Time yearFraction_;
 		Handle<Quote> convAdj_;

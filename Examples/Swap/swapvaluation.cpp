@@ -64,15 +64,14 @@ int main(int, char* []) {
          *********************/
 
         Calendar calendar = TARGET();
-        Date settlementDate(22, September, 2004);
+        Date settlementDate(8, April, 2024);
         // must be a business day
         settlementDate = calendar.adjust(settlementDate);
 
-        Integer fixingDays = 2;
+        Integer fixingDays = 0;
         Date todaysDate = calendar.advance(settlementDate, -fixingDays, Days);
         // nothing to do with Date::todaysDate
         Settings::instance().evaluationDate() = todaysDate;
-
 
         todaysDate = Settings::instance().evaluationDate();
         std::cout << "Today: " << todaysDate.weekday()
@@ -84,8 +83,8 @@ int main(int, char* []) {
         // deposits
         Rate d1wQuote=0.0382;
         Rate d1mQuote=0.0372;
-        Rate d3mQuote=0.0363;
-        Rate d6mQuote=0.0353;
+        Rate d3mQuote=0.03902; //
+        Rate d6mQuote=0.03846; //
         Rate d9mQuote=0.0348;
         Rate d1yQuote=0.0345;
         // FRAs
@@ -93,17 +92,17 @@ int main(int, char* []) {
         Rate fra6x9Quote=0.037125;
         Rate fra6x12Quote=0.037125;
         // futures
-        Real fut1Quote=96.2875;
-        Real fut2Quote=96.7875;
-        Real fut3Quote=96.9875;
-        Real fut4Quote=96.6875;
-        Real fut5Quote=96.4875;
-        Real fut6Quote=96.3875;
-        Real fut7Quote=96.2875;
-        Real fut8Quote=96.0875;
+        Real fut1Quote= 96.335;
+        Real fut2Quote= 96.625;
+        Real fut3Quote= 96.885;
+        Real fut4Quote= 97.105;
+        Real fut5Quote= 97.275;
+        Real fut6Quote= 97.395;
+        Real fut7Quote= 97.475;
+        Real fut8Quote= 97.520;
         // swaps
-        Rate s2yQuote=0.037125;
-        Rate s3yQuote=0.0398;
+        Rate s2yQuote= 0.03224; // +8bp ?
+        Rate s3yQuote= 0.03000; // +8bp ?
         Rate s5yQuote=0.0443;
         Rate s10yQuote=0.05165;
         Rate s15yQuote=0.055175;
@@ -261,7 +260,7 @@ int main(int, char* []) {
         Frequency swFixedLegFrequency = Annual;
         BusinessDayConvention swFixedLegConvention = Unadjusted;
         DayCounter swFixedLegDayCounter = Thirty360(Thirty360::European);
-        boost::shared_ptr<IborIndex> swFloatingLegIndex(new Euribor6M);
+        boost::shared_ptr<IborIndex> swFloatingLegIndex(new Euribor3M);
 
         boost::shared_ptr<RateHelper> s2y(new SwapRateHelper(
             Handle<Quote>(s2yRate), 2*Years,
@@ -306,12 +305,12 @@ int main(int, char* []) {
         std::vector<boost::shared_ptr<RateHelper> > depoSwapInstruments;
         //depoSwapInstruments.push_back(d1w);
         //depoSwapInstruments.push_back(d1m);
-        //depoSwapInstruments.push_back(d3m);
+        depoSwapInstruments.push_back(d3m);
         depoSwapInstruments.push_back(d6m);
         //depoSwapInstruments.push_back(d9m);
-        depoSwapInstruments.push_back(d1y);
-        //depoSwapInstruments.push_back(s2y);
-        //depoSwapInstruments.push_back(s3y);
+        //depoSwapInstruments.push_back(d1y);
+        depoSwapInstruments.push_back(s2y);
+        depoSwapInstruments.push_back(s3y);
         //epoSwapInstruments.push_back(s5y);
         //depoSwapInstruments.push_back(s10y);
         //depoSwapInstruments.push_back(s15y);
@@ -325,8 +324,10 @@ int main(int, char* []) {
 
         // A depo-futures-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoFutSwapInstruments;
-        depoFutSwapInstruments.push_back(d1w);
-        depoFutSwapInstruments.push_back(d1m);
+        //depoFutSwapInstruments.push_back(d1w);
+        //depoFutSwapInstruments.push_back(d1m);
+
+		//depoFutSwapInstruments.push_back(d3m);
         depoFutSwapInstruments.push_back(fut1);
         depoFutSwapInstruments.push_back(fut2);
         depoFutSwapInstruments.push_back(fut3);
@@ -334,17 +335,49 @@ int main(int, char* []) {
         depoFutSwapInstruments.push_back(fut5);
         depoFutSwapInstruments.push_back(fut6);
         depoFutSwapInstruments.push_back(fut7);
-        depoFutSwapInstruments.push_back(fut8);
-        depoFutSwapInstruments.push_back(s3y);
-        depoFutSwapInstruments.push_back(s5y);
-        depoFutSwapInstruments.push_back(s10y);
-        depoFutSwapInstruments.push_back(s15y);
-        boost::shared_ptr<YieldTermStructure> depoFutSwapTermStructure(
+        //depoFutSwapInstruments.push_back(fut8);
+        depoFutSwapInstruments.push_back(s2y);
+		depoFutSwapInstruments.push_back(s3y);
+        //depoFutSwapInstruments.push_back(s5y);
+        //depoFutSwapInstruments.push_back(s10y);
+        //depoFutSwapInstruments.push_back(s15y);
+		
+		// HERE:
+
+        boost::shared_ptr<PiecewiseYieldCurve<Discount, LogLinear>> depoFutSwapTermStructure(
             new PiecewiseYieldCurve<Discount,LogLinear>(
-                                       settlementDate, depoFutSwapInstruments,
+                                       todaysDate, depoFutSwapInstruments,
                                        termStructureDayCounter,
                                        tolerance));
 
+		boost::shared_ptr<YieldTermStructure> depoFutSwapTermStructure2(
+			new PiecewiseYieldCurve<Discount, LogCubic>(
+				settlementDate, depoFutSwapInstruments,
+				termStructureDayCounter,
+				tolerance,
+				LogCubic(CubicInterpolation::Spline, true, 
+					     CubicInterpolation::SecondDerivative, 0.0, 
+					     CubicInterpolation::SecondDerivative, 0.0)
+				)
+		);
+
+		std::cout << depoFutSwapTermStructure->nodes()[0].first << " " << depoFutSwapTermStructure->nodes()[0].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[1].first << " " << depoFutSwapTermStructure->nodes()[1].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[2].first << " " << depoFutSwapTermStructure->nodes()[2].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[3].first << " " << depoFutSwapTermStructure->nodes()[3].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[4].first << " " << depoFutSwapTermStructure->nodes()[4].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[5].first << " " << depoFutSwapTermStructure->nodes()[5].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[6].first << " " << depoFutSwapTermStructure->nodes()[6].second << std::endl;
+		std::cout << depoFutSwapTermStructure->nodes()[7].first << " " << depoFutSwapTermStructure->nodes()[7].second << std::endl;
+
+
+		std::cout << depoFutSwapTermStructure->zeroRate(0.0, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFutSwapTermStructure->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFutSwapTermStructure->zeroRate(1.0, Continuous, NoFrequency, true) << std::endl;
+
+		std::cout << depoFutSwapTermStructure2->zeroRate(0.0, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFutSwapTermStructure2->zeroRate(0.5, Continuous, NoFrequency, true) << std::endl;
+		std::cout << depoFutSwapTermStructure2->zeroRate(1.0, Continuous, NoFrequency, true) << std::endl;
 
         // A depo-FRA-swap curve
         std::vector<boost::shared_ptr<RateHelper> > depoFRASwapInstruments;

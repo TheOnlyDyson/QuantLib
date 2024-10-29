@@ -196,7 +196,10 @@ namespace QuantLib {
                                                             firstAliveHelper_);
                 Real guess = Traits::guess(i, ts_, validData,
                                                             firstAliveHelper_);
-                // adjust guess if needed
+                
+				//max = std::min(1.0, max);
+
+				// adjust guess if needed
                 if (guess>=max)
                     guess = max - (max-min)/5.0;
                 else if (guess<=min)
@@ -250,7 +253,17 @@ namespace QuantLib {
                 change = std::max(change, std::fabs(data[i]-previousData_[i]));
             if (change<=accuracy)  // convergence reached
                 break;
+			//else
+			//	std::cout << iteration << " " << change << std::endl;
 
+			/*
+			if (iteration == 40 || iteration == 41 || iteration == 42 || iteration == 190)
+			{
+				std::cout << iteration << std::endl;
+				for (Size i = 1; i <= alive_; ++i)
+					std::cout << "Pillar " << i << " prev " << previousData_[i] << " cur " << data[i] << std::endl;
+			}
+			*/
             QL_REQUIRE(iteration<maxIterations,
                        "convergence not reached after " << iteration <<
                        " iterations; last improvement " << change <<

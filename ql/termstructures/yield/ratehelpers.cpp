@@ -295,13 +295,30 @@ namespace QuantLib {
 //--------------------------------------------------------------------------------
 
 	RollingFuturesRateHelper::RollingFuturesRateHelper(const Handle<Quote>& price,
-		Real series,
-		const shared_ptr<IborIndex>& i,
-		const Handle<Quote>& convAdj)
-		: RelativeDateRateHelper(price), series_(series), iborIndex_(i), convAdj_(convAdj) {
+		Natural series,
+		Natural lengthInMonths,
+		Natural settlementDays,
+		const Calendar& calendar,
+		const DayCounter& dayCounter,
+		BusinessDayConvention convention,
+		const Handle<Quote>& convexityAdjustment)
+		: RelativeDateRateHelper(price), series_(series), lengthInMonths_(lengthInMonths), settlementDays_(settlementDays),
+		   cal_(calendar), dcc_(dayCounter), bdc_(convention), convAdj_(convexityAdjustment) {
 
 		initializeDates();
-		registerWith(convAdj);
+		registerWith(convexityAdjustment);
+	}
+
+	RollingFuturesRateHelper::RollingFuturesRateHelper(const Handle<Quote>& price,
+		Natural series, 
+		const shared_ptr<IborIndex>& i,
+		Natural settlementDays,
+		const Handle<Quote>& convexityAdjustment)
+		: RelativeDateRateHelper(price), series_(series), lengthInMonths_(static_cast<int>(months(i->tenor()))), settlementDays_(settlementDays), 
+		cal_(i->fixingCalendar()), dcc_(i->dayCounter()), bdc_(i->businessDayConvention()), convAdj_(convexityAdjustment) {
+		
+		initializeDates();
+		registerWith(convexityAdjustment);
 	}
 
 	Real RollingFuturesRateHelper::impliedQuote() const {
@@ -329,7 +346,6 @@ namespace QuantLib {
 			RateHelper::accept(v);
 	}
 
-
 	Date RollingFuturesRateHelper::getImmDate(Date asof, Size i) {
 		Date imm = asof;
 		for (Size j = 0; j < i; j++) {
@@ -341,16 +357,12 @@ namespace QuantLib {
 	void RollingFuturesRateHelper::initializeDates() {
 		// if the evaluation date is not a business day
 		// then move to the next business day
-		Date referenceDate = iborIndex_->fixingCalendar().adjust(evaluationDate_);
+		Date referenceDate =  cal_.advance(cal_.adjust(evaluationDate_), settlementDays_, Days, bdc_);
+		
+		earliestDate_ = cal_.adjust(getImmDate(referenceDate, series_));
+		maturityDate_ = cal_.advance(earliestDate_, lengthInMonths_, Months, bdc_);
+		yearFraction_ = dcc_.yearFraction(earliestDate_, maturityDate_);
 
-		earliestDate_ = iborIndex_->fixingCalendar().adjust(getImmDate(referenceDate, series_));
-
-		const Calendar& cal = iborIndex_->fixingCalendar();
-
-		maturityDate_ = cal.advance(earliestDate_, iborIndex_->tenor(),
-			iborIndex_->businessDayConvention());
-		yearFraction_ = iborIndex_->dayCounter().yearFraction(earliestDate_,
-			maturityDate_);
 		pillarDate_ = latestDate_ = latestRelevantDate_ = maturityDate_;
 	}
 
